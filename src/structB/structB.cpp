@@ -227,6 +227,7 @@ static std::vector<std::vector<int>> findTwoEdgeConnectedComponents(
     return components;
 }
 StructureBResult computeStructureB(const Graph& adj,int n) {
+    int n = adj.n;
     int m = adj.m;
 
     std::vector<int> parent(n + 1, 0);
