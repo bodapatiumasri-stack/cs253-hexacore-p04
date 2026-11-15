@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-
+#include "ranking.h"
 #include "../graph.hpp"
 #include "../structA.hpp"
 #include "block_cut.h"
@@ -63,7 +63,12 @@ int main() {
         cout << "\n";
     }
     BlockCutForest forest =
-        buildBlockCutForest(g, result);
+    buildBlockCutForest(g, result);
+
+vector<CriticalNodeRank> ranking =
+    rankCriticalNodes(forest);
+
+printCriticalNodeRanking(ranking);
     cout << "\n========== BLOCK-CUT FOREST ==========\n";
 
     cout << "Total forest nodes: "
