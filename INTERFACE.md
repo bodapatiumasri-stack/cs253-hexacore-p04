@@ -14,7 +14,7 @@ struct Edge {
     int to;
     int id;
 };
-using Graph = vector<vector<Edge>>;
+struct Graph { int n, m; vector<pair<int,int>> edges; vector<vector<Edge>> adj; };
 ```
 The graph is represented using an adjacency list.
 An edge between vertices `u` and `v` with ID `id` is stored as:
