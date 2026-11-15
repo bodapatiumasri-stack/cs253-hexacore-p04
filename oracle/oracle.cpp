@@ -4,7 +4,8 @@
 #include <iterator>
 #include <queue>
 using namespace std;
-int countComponents(const Graph& adj, int n, int removedVertex, int removedEdge) {
+
+int countComponents(const AdjList& adj, int n, int removedVertex, int removedEdge) {
     vector<bool> visited(n + 1, false);
     int count = 0;
 
@@ -35,30 +36,16 @@ int countComponents(const Graph& adj, int n, int removedVertex, int removedEdge)
     return count;
 }
 
-static int vertexCount(const Graph& graph) {
-    return graph.empty() ? 0 : (int)graph.size() - 1;
-}
-
-static int edgeCount(const Graph& graph) {
-    int maxId = -1;
-    for (const vector<Edge>& list : graph) {
-        for (const Edge& e : list) {
-            maxId = max(maxId, e.id);
-        }
-    }
-    return maxId + 1;
-}
-
 OracleResult runOracle(const Graph& graph) {
-    int n = vertexCount(graph);
-    int m = edgeCount(graph);
+    int n = graph.n;
+    int m = graph.m;
 
     OracleResult r;
-    r.originalComponentCount = countComponents(graph, n);
+    r.originalComponentCount = countComponents(graph.adj, n);
 
     r.componentsAfterVertexRemoval.assign(n + 1, 0);
     for (int v = 1; v <= n; v++) {
-        int after = countComponents(graph, n, v, -1);
+        int after = countComponents(graph.adj, n, v, -1);
         r.componentsAfterVertexRemoval[v] = after;
         if (after > r.originalComponentCount) {
             r.articulationPoints.push_back(v);
@@ -67,7 +54,7 @@ OracleResult runOracle(const Graph& graph) {
 
     r.componentsAfterEdgeRemoval.assign(m, 0);
     for (int id = 0; id < m; id++) {
-        int after = countComponents(graph, n, -1, id);
+        int after = countComponents(graph.adj, n, -1, id);
         r.componentsAfterEdgeRemoval[id] = after;
         if (after > r.originalComponentCount) {
             r.bridges.push_back(id);
@@ -77,7 +64,7 @@ OracleResult runOracle(const Graph& graph) {
 }
 
 bool oracleTooLarge(const Graph& graph) {
-    return vertexCount(graph) > 5000 || edgeCount(graph) > 25000;
+    return graph.n > 5000 || graph.m > 25000;
 }
 
 static void printList(const vector<int>& v) {
@@ -92,7 +79,6 @@ static void printList(const vector<int>& v) {
 }
 
 bool compareResults(const string& label, vector<int> oracle, vector<int> other) {
-
     sort(oracle.begin(), oracle.end());
     sort(other.begin(), other.end());
     oracle.erase(unique(oracle.begin(), oracle.end()), oracle.end());
