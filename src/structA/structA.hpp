@@ -10,6 +10,10 @@ struct StructureAResult {
     std::vector<std::vector<int>> biconnectedComponents;
 };
 
-StructureAResult analyzeStructureA(const Graph& adj, int n);
+StructureAResult analyzeStructureA(const Graph& g, int n);
+
+inline StructureAResult analyzeStructureA(const Graph& g) {
+    return analyzeStructureA(g, g.n);
+}
 
 #endif
