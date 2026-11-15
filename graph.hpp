@@ -13,13 +13,8 @@ struct Edge {
 struct Graph {
     int n = 0;
     int m = 0;
-<<<<<<< HEAD
     vector<pair<int,int>> edges;      
-    vector<vector<Edge>> adj;         
-=======
-    vector<pair<int,int>> edges;    
-   vector<vector<Edge>> adj;         
->>>>>>> origin/main
+    vector<vector<Edge>> adj;                
 
     explicit Graph(int n_ = 0) : n(n_), adj(n_ + 1) {}
 
