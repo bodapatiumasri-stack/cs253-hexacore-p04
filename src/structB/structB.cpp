@@ -2,6 +2,7 @@
 #include "structB.hpp"
 #include <vector>
 #include <algorithm>
+#include<utility>
 #include<queue>
 
 static bool isAncestor(
@@ -227,6 +228,7 @@ static std::vector<std::vector<int>> findTwoEdgeConnectedComponents(
     return components;
 }
 StructureBResult computeStructureB(const Graph& adj,int n) {
+    n=adj.n;
     int m = adj.m;
 
     std::vector<int> parent(n + 1, 0);
