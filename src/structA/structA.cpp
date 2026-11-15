@@ -18,7 +18,6 @@ struct DFSFrame {
 };
 
 } 
-
 StructureAResult analyzeStructureA(const Graph& g, int n) {
     const auto& adj = g.adj;
     StructureAResult result;
@@ -51,7 +50,7 @@ StructureAResult analyzeStructureA(const Graph& g, int n) {
                 int v = e.to;
                 int edge_id = e.id;
 
-                
+               
                 if (edge_id == p_edge || v == u) continue;
 
                 if (disc[v] != 0) {
@@ -106,6 +105,10 @@ StructureAResult analyzeStructureA(const Graph& g, int n) {
                     }
                 }
             }
+        }
+
+        if (adj[start_node].empty()) {
+            result.biconnectedComponents.push_back({});
         }
 
         is_ap[start_node] = (root_children >= 2);
