@@ -18,7 +18,7 @@ struct DFSFrame {
     size_t neighbor_idx;
 };
 
-}
+} // namespace
 
 StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, int n) {
     StructureAResult result;
@@ -54,7 +54,7 @@ StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, in
 
                 if (edge_id == p_edge) continue;
 
-                
+                // Self-loops (u == v): recorded once as a 1-edge BCC if present in adj
                 if (v == u) {
                     if (seen_self_loops.insert(edge_id).second) {
                         result.biconnectedComponents.push_back({edge_id});
