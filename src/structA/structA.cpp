@@ -17,8 +17,7 @@ struct DFSFrame {
     size_t neighbor_idx;
 };
 
-} // namespace
-
+} 
 StructureAResult analyzeStructureA(const Graph& g, int n) {
     const auto& adj = g.adj;
     StructureAResult result;
@@ -51,7 +50,7 @@ StructureAResult analyzeStructureA(const Graph& g, int n) {
                 int v = e.to;
                 int edge_id = e.id;
 
-                // Ignore parent tree-edge and self-loops per Common Graph Interface
+               
                 if (edge_id == p_edge || v == u) continue;
 
                 if (disc[v] != 0) {
