@@ -4,24 +4,36 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "../src/structA/structA.hpp"
 #include "../src/structB/structB.hpp"
 #include "oracle.hpp"
+
 using namespace std;
+
+static StructureAResult callStructureA(const Graph& adj, int n) { return analyzeStructureA(adj, n); }
+static StructureBResult callStructureB(const Graph& adj, int n) { return computeStructureB(adj, n); }
+
 static int failures = 0;
-static GraphData makeGraph(int n, const vector<pair<int, int>>& edgeList) {
-    GraphData g;
-    g.n = n;
-    g.m = (int)edgeList.size();
-    g.edges = edgeList;
-    g.adj.assign(n + 1, {});
-    for (int id = 0; id < g.m; id++) {
+
+struct TestGraph {
+    int n = 0;
+    vector<pair<int, int>> edges;
+    Graph adj;
+};
+
+static TestGraph makeGraph(int n, const vector<pair<int, int>>& edgeList) {
+    TestGraph t;
+    t.n = n;
+    t.edges = edgeList;
+    t.adj.assign(n + 1, {});
+    for (int id = 0; id < (int)edgeList.size(); id++) {
         int u = edgeList[id].first;
         int v = edgeList[id].second;
-        g.adj[u].push_back({v, id});
-        g.adj[v].push_back({u, id});
+        t.adj[u].push_back({v, id});
+        if (u != v) t.adj[v].push_back({u, id});
     }
-    return g;
+    return t;
 }
 
 static vector<int> sorted(vector<int> v) {
@@ -30,33 +42,33 @@ static vector<int> sorted(vector<int> v) {
     return v;
 }
 
-static void runNamed(const string& name, const GraphData& g) {
+static void runNamed(const string& name, const TestGraph& t) {
     cout << "### " << name << "\n";
-    StructureAResult a = computeStructureA(g);
-    StructureBResult b = computeStructureB(g);
-    bool ok = runOracleReport(g, a.articulationPoints, a.bridges, b.bridges);
+    StructureAResult a = callStructureA(t.adj, t.n);
+    StructureBResult b = callStructureB(t.adj, t.n);
+    bool ok = runOracleReport(t.adj, a.articulationPoints, a.bridges, b.bridges);
     if (!ok) failures++;
 }
 
-static bool quietCheck(const GraphData& g, const string& label) {
-    StructureAResult a = computeStructureA(g);
-    StructureBResult b = computeStructureB(g);
+static bool quietCheck(const TestGraph& t, const string& label) {
+    StructureAResult a = callStructureA(t.adj, t.n);
+    StructureBResult b = callStructureB(t.adj, t.n);
 
-    vector<int> ap = oracleArticulationPoints(g);
-    vector<int> br = oracleBridges(g);
+    OracleResult o = runOracle(t.adj);
 
-    bool ok = sorted(a.articulationPoints) == ap &&
-              sorted(a.bridges) == br &&
-              sorted(b.bridges) == br;
+    bool ok = sorted(a.articulationPoints) == o.articulationPoints &&
+              sorted(a.bridges) == o.bridges &&
+              sorted(b.bridges) == o.bridges;
 
     if (!ok) {
-        cout << "!!! MISMATCH on " << label << " (n=" << g.n << ", m=" << g.m << ")\n";
-        cout << "Edges (id: u v):";
-        for (int i = 0; i < g.m; i++) {
-            cout << " " << i << ":" << g.edges[i].first << "-" << g.edges[i].second;
+        cout << "!!! MISMATCH on " << label << " (n=" << t.n
+             << ", m=" << t.edges.size() << ")\n";
+        cout << "Edges (id: u-v):";
+        for (int i = 0; i < (int)t.edges.size(); i++) {
+            cout << " " << i << ":" << t.edges[i].first << "-" << t.edges[i].second;
         }
         cout << "\n";
-        runOracleReport(g, a.articulationPoints, a.bridges, b.bridges);
+        runOracleReport(t.adj, a.articulationPoints, a.bridges, b.bridges);
     }
     return ok;
 }
@@ -69,49 +81,55 @@ static unsigned int nextRand() {
     return (unsigned int)(rngState >> 11);
 }
 
-static GraphData randomGraph(int n, int m) {
+static TestGraph randomGraph(int n, int m, bool allowExtras) {
     set<pair<int, int>> used;
     vector<pair<int, int>> edgeList;
-    int maxEdges = n * (n - 1) / 2;
-    if (m > maxEdges) m = maxEdges;
+    if (!allowExtras) {
+        int maxEdges = n * (n - 1) / 2;
+        if (m > maxEdges) m = maxEdges;
+    }
     while ((int)edgeList.size() < m) {
         int u = (int)(nextRand() % n) + 1;
         int v = (int)(nextRand() % n) + 1;
-        if (u == v) continue;
-        pair<int, int> key = {min(u, v), max(u, v)};
-        if (used.count(key)) continue;
-        used.insert(key);
+        if (!allowExtras) {
+            if (u == v) continue;
+            pair<int, int> key = {min(u, v), max(u, v)};
+            if (used.count(key)) continue;
+            used.insert(key);
+        }
         edgeList.push_back({u, v});
     }
     return makeGraph(n, edgeList);
 }
 
 int main() {
-   
+
     runNamed("Path 1-2-3-4-5", makeGraph(5, {{1, 2}, {2, 3}, {3, 4}, {4, 5}}));
     runNamed("Cycle of 4", makeGraph(4, {{1, 2}, {2, 3}, {3, 4}, {4, 1}}));
     runNamed("Star", makeGraph(5, {{1, 2}, {1, 3}, {1, 4}, {1, 5}}));
     runNamed("Disconnected + isolated vertex", makeGraph(6, {{1, 2}, {2, 3}, {4, 5}}));
     runNamed("Single vertex", makeGraph(1, {}));
-    runNamed("Triangle with tail",
-             makeGraph(4, {{1, 2}, {2, 3}, {3, 1}, {3, 4}}));
+    runNamed("Triangle with tail", makeGraph(4, {{1, 2}, {2, 3}, {3, 1}, {3, 4}}));
     runNamed("Two triangles joined by a path",
              makeGraph(7, {{1, 2}, {2, 3}, {3, 1}, {3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 5}}));
+    runNamed("Parallel edges", makeGraph(3, {{1, 2}, {1, 2}, {2, 3}}));
+    runNamed("Self-loop in the middle of a path", makeGraph(3, {{1, 2}, {2, 2}, {2, 3}}));
+    runNamed("Vertex with only a self-loop", makeGraph(3, {{1, 2}, {3, 3}}));
 
-   
     const int TRIALS = 500;
     int bad = 0;
     for (int t = 0; t < TRIALS; t++) {
-        int n = (int)(nextRand() % 25) + 1;                
-        int maxEdges = n * (n - 1) / 2;
-        int m = maxEdges == 0 ? 0 : (int)(nextRand() % (min(maxEdges, 40) + 1));
-        GraphData g = randomGraph(n, m);
+        bool extras = (t % 2 == 1);
+        int n = (int)(nextRand() % 25) + 1;
+        int maxEdges = extras ? 40 : min(n * (n - 1) / 2, 40);
+        int m = maxEdges == 0 ? 0 : (int)(nextRand() % (maxEdges + 1));
+        TestGraph g = randomGraph(n, m, extras);
         if (!quietCheck(g, "random trial " + to_string(t))) bad++;
     }
     cout << "Random stress test: " << (TRIALS - bad) << "/" << TRIALS << " graphs matched.\n";
     failures += bad;
 
-    cout << "\n" << (failures == 0 ? "ALL CHECKS MATCHED" : "SOME CHECKS FAILED")
+    cout << "\n" << (failures == 0 ? "ALL TESTS PASSED" : "SOME CHECKS FAILED")
          << " (failures: " << failures << ")\n";
     return failures == 0 ? 0 : 1;
 }
