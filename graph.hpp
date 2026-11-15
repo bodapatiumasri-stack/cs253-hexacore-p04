@@ -9,7 +9,7 @@ struct Edge{
     int id;
 };
 
-struct GraphData{
+struct Graph{
     int n=0;
     int m=0;
     vector<pair<int,int>> edges;
