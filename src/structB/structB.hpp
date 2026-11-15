@@ -2,7 +2,7 @@
 #ifndef STRUCTB_HPP
 #define STRUCTB_HPP
 
-#include "../../graph.hpp"
+#include "../common/graph.hpp"
 #include <vector>
 
 struct StructureBResult {
