@@ -1,7 +1,7 @@
 #ifndef STRUCT_A_HPP
 #define STRUCT_A_HPP
 
-#include "../common/graph.hpp"
+#include "../../graph.hpp"
 #include <vector>
 
 struct StructureAResult {
