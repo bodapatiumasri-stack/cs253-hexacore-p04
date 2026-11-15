@@ -17,9 +17,10 @@ struct DFSFrame {
     size_t neighbor_idx;
 };
 
-}
+} 
 
-StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, int n) {
+StructureAResult analyzeStructureA(const Graph& g, int n) {
+    const auto& adj = g.adj;
     StructureAResult result;
     if (n <= 0) return result;
 
