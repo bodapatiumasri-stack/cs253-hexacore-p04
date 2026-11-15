@@ -1,8 +1,7 @@
 #include "structA.hpp"
-#include <vector>
-#include <stack>
 #include <algorithm>
-#include <set>
+#include <stack>
+#include <vector>
 
 namespace {
 
@@ -18,20 +17,17 @@ struct DFSFrame {
     size_t neighbor_idx;
 };
 
-}
+} // namespace
 
-StructureAResult computeStructureA(const GraphData& g) {
+StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, int n) {
     StructureAResult result;
-    int n = g.n;
-
     if (n <= 0) return result;
 
     std::vector<int> disc(n + 1, 0);
     std::vector<int> low(n + 1, 0);
     std::vector<bool> is_ap(n + 1, false);
-    
-    int timer = 0;
     std::stack<StackEdge> edge_stack;
+    int timer = 0;
 
     for (int start_node = 1; start_node <= n; ++start_node) {
         if (disc[start_node] != 0) continue;
@@ -49,8 +45,8 @@ StructureAResult computeStructureA(const GraphData& g) {
             int u = frame.u;
             int p_edge = frame.parent_edge_id;
 
-            if (frame.neighbor_idx < g.adj[u].size()) {
-                Edge e = g.adj[u][frame.neighbor_idx++];
+            if (frame.neighbor_idx < adj[u].size()) {
+                Edge e = adj[u][frame.neighbor_idx++];
                 int v = e.to;
                 int edge_id = e.id;
 
@@ -86,34 +82,25 @@ StructureAResult computeStructureA(const GraphData& g) {
                     }
 
                     if (low[u] > disc[parent_node]) {
-                        for (const auto& edge_info : g.adj[parent_node]) {
-                            if (edge_info.to == u) {
-                                result.bridges.push_back(edge_info.id);
-                                break;
-                            }
-                        }
+                        result.bridges.push_back(p_edge);
                     }
 
                     if (low[u] >= disc[parent_node]) {
-                        BiconnectedComponent bcc;
-                        std::set<int> bcc_vertices;
+                        std::vector<int> bcc_edges;
 
                         while (!edge_stack.empty()) {
                             StackEdge se = edge_stack.top();
                             edge_stack.pop();
                             
-                            bcc.edges.push_back(se.id);
-                            bcc_vertices.insert(se.u);
-                            bcc_vertices.insert(se.v);
+                            bcc_edges.push_back(se.id);
 
                             if ((se.u == parent_node && se.v == u) || (se.u == u && se.v == parent_node)) {
                                 break;
                             }
                         }
 
-                        bcc.vertices.assign(bcc_vertices.begin(), bcc_vertices.end());
-                        std::sort(bcc.edges.begin(), bcc.edges.end());
-                        result.biconnectedComponents.push_back(bcc);
+                        std::sort(bcc_edges.begin(), bcc_edges.end());
+                        result.biconnectedComponents.push_back(std::move(bcc_edges));
                     }
                 }
             }
@@ -130,12 +117,7 @@ StructureAResult computeStructureA(const GraphData& g) {
 
     std::sort(result.articulationPoints.begin(), result.articulationPoints.end());
     std::sort(result.bridges.begin(), result.bridges.end());
-
-    std::sort(result.biconnectedComponents.begin(), result.biconnectedComponents.end(),
-        [](const BiconnectedComponent& a, const BiconnectedComponent& b) {
-            return a.vertices < b.vertices;
-        }
-    );
+    std::sort(result.biconnectedComponents.begin(), result.biconnectedComponents.end());
 
     return result;
 }
