@@ -150,6 +150,7 @@ The Architect module must:
 ### Query
 ```cpp
 bool isDisconnectedAfterFailure(
+ const BlockCutForest& forest,
     int x,
     int y,
     int failedVertex
