@@ -1,6 +1,7 @@
 #include "structA.hpp"
 #include <algorithm>
 #include <stack>
+#include <unordered_set>
 #include <vector>
 
 namespace {
@@ -17,7 +18,7 @@ struct DFSFrame {
     size_t neighbor_idx;
 };
 
-} // namespace
+}
 
 StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, int n) {
     StructureAResult result;
@@ -27,6 +28,7 @@ StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, in
     std::vector<int> low(n + 1, 0);
     std::vector<bool> is_ap(n + 1, false);
     std::stack<StackEdge> edge_stack;
+    std::unordered_set<int> seen_self_loops;
     int timer = 0;
 
     for (int start_node = 1; start_node <= n; ++start_node) {
@@ -51,6 +53,14 @@ StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, in
                 int edge_id = e.id;
 
                 if (edge_id == p_edge) continue;
+
+                
+                if (v == u) {
+                    if (seen_self_loops.insert(edge_id).second) {
+                        result.biconnectedComponents.push_back({edge_id});
+                    }
+                    continue;
+                }
 
                 if (disc[v] != 0) {
                     low[u] = std::min(low[u], disc[v]);
@@ -94,7 +104,7 @@ StructureAResult analyzeStructureA(const std::vector<std::vector<Edge>>& adj, in
                             
                             bcc_edges.push_back(se.id);
 
-                            if ((se.u == parent_node && se.v == u) || (se.u == u && se.v == parent_node)) {
+                            if (se.id == p_edge) {
                                 break;
                             }
                         }
