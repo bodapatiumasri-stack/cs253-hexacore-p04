@@ -2,22 +2,19 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load results.csv from the same directory as this script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(script_dir, "results.csv")
 
 df = pd.read_csv(csv_path)
 
-# Ensure numeric types and drop any accidental duplicate header rows
 df = df[df["V"].astype(str) != "V"].copy()
 for col in ["V", "E", "StructA_ms", "StructB_ms", "Oracle_ms"]:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
-# Extract clean topology name from file path (e.g., "cliques_50k.txt" -> "cliques")
 df["Filename"] = df["Graph_Path"].apply(lambda p: os.path.basename(str(p)))
 df["Topology"] = df["Filename"].apply(lambda f: f.split("_")[0])
 
-# --- Chart 1: Overall Scalability Comparison (Average Runtime by Vertex Scale) ---
+
 df_sorted = df.sort_values("V")
 scale_summary = df_sorted.groupby("V")[["StructA_ms", "StructB_ms"]].mean().reset_index()
 
@@ -33,7 +30,6 @@ plt.tight_layout()
 plt.savefig(os.path.join(script_dir, "scalability_comparison.png"), dpi=300)
 plt.close()
 
-# --- Chart 2: Topology Breakdown at V = 100,000 ---
 df_100k = df[df["V"] >= 90000].sort_values("Topology")
 if not df_100k.empty:
     x = range(len(df_100k))
@@ -52,7 +48,6 @@ if not df_100k.empty:
     plt.savefig(os.path.join(script_dir, "topology_100k_comparison.png"), dpi=300)
     plt.close()
 
-# --- Chart 3: Oracle vs. Linear-Time Algorithms on Small/Medium Graphs ---
 df_oracle = df[df["Oracle_ms"] > 0].groupby("V")[["StructA_ms", "StructB_ms", "Oracle_ms"]].mean().reset_index()
 if not df_oracle.empty:
     plt.figure(figsize=(9, 5))
