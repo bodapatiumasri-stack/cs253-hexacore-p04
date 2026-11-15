@@ -1,4 +1,6 @@
-#pragma once
+#ifndef STRUCT_A_HPP
+#define STRUCT_A_HPP
+
 #include "../common/graph.hpp"
 #include <vector>
 
@@ -8,11 +10,6 @@ struct StructureAResult {
     std::vector<std::vector<int>> biconnectedComponents;
 };
 
-StructureAResult analyzeStructureA(
-    const std::vector<std::vector<Edge>>& adj,
-    int n
-);
+StructureAResult analyzeStructureA(const Graph& adj, int n);
 
-inline StructureAResult analyzeStructureA(const GraphData& g) {
-    return analyzeStructureA(g.adj, g.n);
-}
+#endif
