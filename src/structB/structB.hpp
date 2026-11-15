@@ -10,6 +10,6 @@ struct StructureBResult {
     std::vector<std::vector<int>> twoEdgeConnectedComponents;
 };
 
-StructureBResult computeStructureB(const GraphData& g);
+StructureBResult computeStructureB(const Graph& adj,int n);
 
 #endif

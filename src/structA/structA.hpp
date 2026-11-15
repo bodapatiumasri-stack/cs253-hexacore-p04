@@ -1,20 +1,18 @@
-#ifndef STRUCTA_HPP
-#define STRUCTA_HPP
-
+#pragma once
 #include "../common/graph.hpp"
 #include <vector>
-
-struct BiconnectedComponent {
-    std::vector<int> vertices;  
-    std::vector<int> edges;     
-};
 
 struct StructureAResult {
     std::vector<int> articulationPoints;
     std::vector<int> bridges;
-    std::vector<BiconnectedComponent> biconnectedComponents;
+    std::vector<std::vector<int>> biconnectedComponents;
 };
 
-StructureAResult computeStructureA(const GraphData& g);
+StructureAResult analyzeStructureA(
+    const std::vector<std::vector<Edge>>& adj,
+    int n
+);
 
-#endif
+inline StructureAResult analyzeStructureA(const GraphData& g) {
+    return analyzeStructureA(g.adj, g.n);
+}

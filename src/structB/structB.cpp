@@ -31,7 +31,7 @@ static int findJump(int x, std::vector<int>& jump) {
 }
 
 static void buildDFS(
-    const GraphData& g,
+    const Graph& g,
     std::vector<int>& parent,
     std::vector<int>& parentEdge,
     std::vector<int>& depth,
@@ -88,7 +88,7 @@ static void buildDFS(
 
 
 static std::vector<std::pair<int, int>> findBackEdges(
-    const GraphData& g,
+    const Graph& g,
     const std::vector<int>& parentEdge,
     const std::vector<int>& tin,
     const std::vector<int>& tout
@@ -117,7 +117,7 @@ static std::vector<std::pair<int, int>> findBackEdges(
 
 
 static std::vector<bool> markCycleEdges(
-    const GraphData& g,
+    const Graph& g,
     const std::vector<int>& parent,
     const std::vector<int>& parentEdge,
     const std::vector<int>& depth,
@@ -178,7 +178,7 @@ static std::vector<bool> findBridges(
     return isBridge;
 }
 static std::vector<std::vector<int>> findTwoEdgeConnectedComponents(
-    const GraphData& g,
+    const Graph& g,
     const std::vector<bool>& isBridge
 ) {
     int n = g.n;
@@ -226,10 +226,8 @@ static std::vector<std::vector<int>> findTwoEdgeConnectedComponents(
 
     return components;
 }
-StructureBResult computeStructureB(const GraphData& g) {
-
-    int n = g.n;
-    int m = g.m;
+StructureBResult computeStructureB(const Graph& adj,int n) {
+    int m = adj.m;
 
     std::vector<int> parent(n + 1, 0);
     std::vector<int> parentEdge(n + 1, -1);
@@ -237,13 +235,13 @@ StructureBResult computeStructureB(const GraphData& g) {
     std::vector<int> tin(n + 1, -1);
     std::vector<int> tout(n + 1, -1);
 
-    buildDFS(g, parent, parentEdge, depth, tin, tout);
+    buildDFS(adj, parent, parentEdge, depth, tin, tout);
 
     std::vector<std::pair<int, int>> backEdges =
-        findBackEdges(g, parentEdge, tin, tout);
+        findBackEdges(adj, parentEdge, tin, tout);
 
     std::vector<bool> marked =
-        markCycleEdges(g, parent, parentEdge, depth, backEdges);
+        markCycleEdges(adj, parent, parentEdge, depth, backEdges);
 
     StructureBResult result;
 
@@ -251,7 +249,7 @@ StructureBResult computeStructureB(const GraphData& g) {
         findBridges(n, m, parentEdge, marked, result.bridges);
 
     result.twoEdgeConnectedComponents =
-        findTwoEdgeConnectedComponents(g, isBridge);
+        findTwoEdgeConnectedComponents(adj, isBridge);
 
     return result;
 }
