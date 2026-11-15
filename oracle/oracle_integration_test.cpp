@@ -4,8 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "../structA/structA.hpp"
-#include "../structB/structB.hpp"
+#include "../src/structA/structA.hpp"
+#include "../src/structB/structB.hpp"
 #include "oracle.hpp"
 using namespace std;
 static int failures = 0;
