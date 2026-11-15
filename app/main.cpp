@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 
@@ -9,73 +8,73 @@
 using namespace std;
 
 int main() {
-    Graph graph;
+
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
     cout << "Enter number of vertices and edges: ";
-    cin >> graph.n >> graph.m;
-    if (!cin || graph.n < 0 || graph.m < 0) {
-        cout << "Invalid graph input.\n";
-        return 1;
-    }
-    graph.adj.resize(graph.n + 1);
-    graph.edges.resize(graph.m);
-    cout << "Enter the edges (u v):\n";
-    for (int id = 0; id < graph.m; id++) {
+    cin >> n >> m;
+    Graph g(n);
+    cout << "Enter edges (u v):\n";
+    for (int i = 0; i < m; i++) {
         int u, v;
         cin >> u >> v;
-        if (!cin || u < 1 || u > graph.n ||
-            v < 1 || v > graph.n) {
-            cout << "Invalid edge input.\n";
-            return 1;
-        }
-        graph.edges[id] = {u, v};
-        graph.adj[u].push_back({v, id});
-        if (u != v) {
-            graph.adj[v].push_back({u, id});
-        }
+        g.addEdge(u, v);
     }
     StructureAResult result =
-        analyzeStructureA(graph);
-    BlockCutForest forest =
-        buildBlockCutForest(graph, result);
-    cout << "\n========== GRAPH ANALYSIS ==========\n";
-    cout << "Articulation Points: ";
+        analyzeStructureA(g);
+    cout << "\n========== CRITICAL VERTICES ==========\n";
     if (result.articulationPoints.empty()) {
-        cout << "None";
-    } else {
+        cout << "No articulation points found.\n";
+    }
+    else {
+        cout << "Articulation points: ";
         for (int v : result.articulationPoints) {
             cout << v << " ";
         }
+        cout << "\n";
     }
-    cout << "\n";
-    cout << "Bridges (edge IDs): ";
+    cout << "\n========== CRITICAL EDGES ==========\n";
     if (result.bridges.empty()) {
-        cout << "None";
-    } else {
-        for (int id : result.bridges) {
-            cout << id << " ";
+        cout << "No bridges found.\n";
+    }
+    else {
+        for (int edgeId : result.bridges) {
+            if (edgeId < 0 || edgeId >= g.m) {
+                continue;
+            }
+            int u = g.edges[edgeId].first;
+            int v = g.edges[edgeId].second;
+            cout << "Edge ID: " << edgeId
+                 << " | Edge: (" << u << ", " << v << ")\n";
         }
     }
-    cout << "\n";
-    cout << "Number of Biconnected Components: "
+    cout << "\n========== BICONNECTED COMPONENTS ==========\n";
+    cout << "Total components: "
          << result.biconnectedComponents.size() << "\n";
-    cout << "Number of Block-Cut Forest Nodes: "
-         << forest.nodeCount << "\n";
+    for (int i = 0;
+         i < (int)result.biconnectedComponents.size();
+         i++) {
+        cout << "Component " << i + 1 << ": ";
+        for (int edgeId : result.biconnectedComponents[i]) {
+            cout << edgeId << " ";
+        }
+        cout << "\n";
+    }
+    BlockCutForest forest =
+        buildBlockCutForest(g, result);
+    cout << "\n========== BLOCK-CUT FOREST ==========\n";
+
+    cout << "Total forest nodes: "
+         << forest.totalNodes << "\n";
     int q;
     cout << "\nEnter number of queries: ";
     cin >> q;
-    if (!cin || q < 0) {
-        cout << "Invalid query count.\n";
-        return 1;
-    }
-    cout << "Enter each query as: x y failedVertex\n";
-    cout << "\n========== QUERY RESULTS ==========\n";
-    for (int i = 1; i <= q; i++) {
+    cout << "\nEnter queries (x y failedVertex):\n";
+    for (int i = 0; i < q; i++) {
         int x, y, failedVertex;
         cin >> x >> y >> failedVertex;
-        if (!cin) {
-            cout << "Invalid query input.\n";
-            return 1;
-        }
         bool disconnected =
             isDisconnectedAfterFailure(
                 forest,
@@ -83,13 +82,13 @@ int main() {
                 y,
                 failedVertex
             );
-        cout << "Query " << i << ": ";
+        cout << "\nQuery " << i + 1 << ": ";
         if (disconnected) {
             cout << "DISCONNECTED\n";
-        } else {
+        }
+        else {
             cout << "CONNECTED\n";
         }
     }
-    cout << "\n========== ANALYSIS COMPLETE ==========\n";
     return 0;
 }
