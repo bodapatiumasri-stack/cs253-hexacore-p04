@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
     GraphData g = load_graph(filepath);
     if (g.n <= 0) return 1;
 
+    
     std::ifstream check_csv("benchmark/results.csv");
     bool write_header = !check_csv.good() || check_csv.peek() == std::ifstream::traits_type::eof();
     check_csv.close();
@@ -61,17 +62,19 @@ int main(int argc, char* argv[]) {
     if (write_header) {
         csv_out << "Graph_Path,V,E,StructA_ms,StructB_ms,Oracle_ms,Verified\n";
     }
-
+-
     auto start_A = std::chrono::high_resolution_clock::now();
     StructureAResult resA = analyzeStructureA(g, g.n);
     auto end_A = std::chrono::high_resolution_clock::now();
     double time_A = std::chrono::duration<double, std::milli>(end_A - start_A).count();
-  
+
+
     auto start_B = std::chrono::high_resolution_clock::now();
     StructureBResult resB = computeStructureB(g, g.n);
     auto end_B = std::chrono::high_resolution_clock::now();
     double time_B = std::chrono::duration<double, std::milli>(end_B - start_B).count();
 
+    /
     double time_Oracle = -1.0;
     std::string verified = "SKIPPED";
 
