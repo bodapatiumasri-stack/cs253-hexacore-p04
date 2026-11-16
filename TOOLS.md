@@ -12,6 +12,10 @@ This file lists every AI tool or other significant tool used in this project, on
 | Gemini (Google) | Rishika Goyal (250008029) | Converting recursive Tarjan's DFS into an iterative `DFSFrame` state-machine implementation and handling multigraph edge cases (`edge_id` tracking, self-loops, isolated vertices) (Nov 2026) | `src/structA/structA.hpp`, `src/structA/structA.cpp` | Reviewed and adapted the iterative stack unwinding logic, added `std::sort` for deterministic output, compiled with `g++ -std=c++17 -O2 -Wall -Wextra` with zero warnings, and verified against `oracle.cpp` and `structB.cpp`. |
 | Gemini (Google) | Rishika Goyal (250008029) | Reconciling `analyzeStructureA` function signatures and Common Graph Interface (`graph.hpp`) headers during team branch integration (Nov 2026) | `src/structA/structA.hpp`, `src/structA/structA.cpp`, `graph.hpp` | Resolved header merge conflicts, verified 1-based indexing and `Edge { to, id }` compliance, and tested end-to-end compilation with teammate modules. |
 
+| ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Understanding Structure B, including iterative DFS, parent edges, back edges, ancestor relationships, bridge detection, and two-edge-connected components (Nov 2026) | None; used for conceptual learning and code walkthroughs | Read the explanations, traced the algorithm step by step, and worked through the DFS traversal and cycle-marking logic. |
+| ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Understanding and reviewing the Structure B implementation, including DSU, path compression, union by rank, top metadata, and complexity analysis (Nov 2026) | `src/structB/structB.cpp`, `src/structB/structB.hpp` | Discussed implementation decisions, examined the DSU-based path-marking approach, and revised the implementation. The final revised version was not compiled or tested by ChatGPT. |
+| ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Preparing the D2 correctness and complexity derivation for Structure B, including why path marking identifies tree edges that lie on cycles (Nov 2026) | `docs/derivations/D2_250041009.pdf` | Used explanations and proof guidance to develop the correctness argument, refine the lemma statements, and understand the complexity analysis. |
+
 ## Representative Prompts
 
 The prompts below are taken from my own messages. Only spelling, capital letters and punctuation were corrected; the wording and the meaning are the same as I wrote them.
@@ -26,3 +30,15 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 1. **Nov 2026 (Iterative Tarjan DFS & Multigraph Edge Cases):** "How can Tarjan's DFS algorithm be implemented iteratively using an explicit stack so it avoids recursion overflow on deep graphs while handling parallel edges via `edge_id`, self-loops, and isolated vertices?"
 2. **Nov 2026 (Common Graph Interface Alignment):** "How should `analyzeStructureA` in `structA.hpp` and `structA.cpp` be structured to match the `Graph` adjacency list interface in `graph.hpp` and avoid header merge conflicts?"
 3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B?"
+
+**Bodapati Uma Sri (250041009)**
+
+1. **Nov 2026 (Understanding DFS and Ancestor Relationships):** "Why do we use `tin` and `tout` to check whether one vertex is an ancestor of another? How does this help us distinguish back edges from other edges?"
+
+2. **Nov 2026 (Handling Undirected Graphs and Parallel Edges):** "Since every undirected edge appears twice in the adjacency list, why do we skip the parent edge using its edge ID instead of simply checking the parent vertex? How does this handle parallel edges?"
+
+3. **Nov 2026 (Understanding the Path-Marking Approach):** "When a back edge connects a descendant to an ancestor, why do we mark all the tree edges along the path between them? How does this help us identify bridges?"
+
+4. **16 Nov 2026 (DSU Optimization and Complexity):** "If we use only path compression, can we claim the inverse-Ackermann complexity? Why do we need union by rank along with path compression, and how should we maintain the `top` vertex when two sets are merged?"
+
+5. **16 Nov 2026 (Implementation Verification):** "After merging a vertex with its parent, why do we find the new topmost vertex again instead of simply moving to the parent? Does this ensure that an already processed tree edge is not processed repeatedly?"
