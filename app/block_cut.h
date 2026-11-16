@@ -3,7 +3,7 @@
 #define BLOCK_CUT_H
 
 #include "../graph.hpp"
-#include "../structA.hpp"
+#include "../src/structA/structA.hpp"
 
 #include <vector>
 
