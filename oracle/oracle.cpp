@@ -63,6 +63,28 @@ OracleResult runOracle(const Graph& graph) {
     return r;
 }
 
+vector<int> oracleArticulationPoints(const Graph& graph) {
+    int original = countComponents(graph.adj, graph.n);
+    vector<int> result;
+    for (int v = 1; v <= graph.n; v++) {
+        if (countComponents(graph.adj, graph.n, v, -1) > original) {
+            result.push_back(v);
+        }
+    }
+    return result;
+}
+
+vector<int> oracleBridges(const Graph& graph) {
+    int original = countComponents(graph.adj, graph.n);
+    vector<int> result;
+    for (int id = 0; id < graph.m; id++) {
+        if (countComponents(graph.adj, graph.n, -1, id) > original) {
+            result.push_back(id);
+        }
+    }
+    return result;
+}
+
 bool oracleTooLarge(const Graph& graph) {
     return graph.n > 5000 || graph.m > 25000;
 }
