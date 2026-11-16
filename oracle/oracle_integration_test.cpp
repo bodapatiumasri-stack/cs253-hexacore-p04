@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-
+#include "../app/block_cut.h"
 #include "../graph.hpp"
 #include "../src/structA/structA.hpp"
 #include "../src/structB/structB.hpp"
