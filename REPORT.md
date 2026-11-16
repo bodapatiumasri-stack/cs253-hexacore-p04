@@ -288,7 +288,7 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
 
 **Pre-Measurement Performance Predictions:**
 1. **Validation Regime ($V \le 5,000$):** All three engines complete within practical bounds, enabling ground-truth Oracle verification.
-2. **Scalability Regime ($V > 5,000$ to $V = 100,000$):** The Oracle diverges quadratically ($\mathcal{O}(V^2 + VE)$) and is bypassed via `oracleTooLarge(g)`, while Structures A and B maintain linear growth.
+2. **Scalability Regime ($V > 5,000$ to $V = 100,000$):** The Oracle diverges quadratically $\mathcal{O}(V^2 + VE)$ and is bypassed via `oracleTooLarge(g)`, while Structures A and B maintain linear growth.
 3. **Structure A vs. Structure B Constant-Factor Separation:** Structure B is predicted to exhibit higher constant-factor overhead than Structure A due to multi-phase processing (DFS tree construction, back-edge extraction, DSU cycle marking, and BFS component collection) and non-contiguous pointer chasing during DSU path compression.
 
 ---
