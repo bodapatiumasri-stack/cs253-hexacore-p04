@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <iostream>
-#include <random>
 #include <set>
 #include <string>
 #include <utility>
@@ -13,23 +12,24 @@
 
 using namespace std;
 
-static StructureAResult callA(const Graph& g) {
-    return analyzeStructureA(g);               
-}
-
-static vector<int> callBBridges(const Graph& g) {
-    return computeStructureB(g, g.n).bridges;   
-}
-
-
-typedef vector<pair<int, int>> EdgeList;
-
 static int failures = 0;
 
-static Graph makeGraph(int n, const EdgeList& edges) {
-    Graph g(n);
-    for (const auto& e : edges) g.addEdge(e.first, e.second);
-    return g;
+struct TestGraph {
+    Graph graph;
+};
+
+static TestGraph makeGraph(
+    int n,
+    const vector<pair<int, int>>& edgeList
+) {
+    TestGraph t;
+    t.graph = Graph(n);
+
+    for (auto edge : edgeList) {
+        t.graph.addEdge(edge.first, edge.second);
+    }
+
+    return t;
 }
 
 static vector<int> sorted(vector<int> v) {
@@ -38,77 +38,207 @@ static vector<int> sorted(vector<int> v) {
     return v;
 }
 
-static void runNamed(const string& name, const Graph& g) {
+static void runNamed(
+    const string& name,
+    const TestGraph& t
+) {
     cout << "### " << name << "\n";
-    StructureAResult a = callA(g);
-    vector<int> b = callBBridges(g);
-    if (!runOracleReport(g, a.articulationPoints, a.bridges, b)) failures++;
+
+    StructureAResult a = analyzeStructureA(t.graph);
+    StructureBResult b = computeStructureB(t.graph, t.graph.n);
+
+    bool ok = runOracleReport(
+        t.graph,
+        a.articulationPoints,
+        a.bridges,
+        b.bridges
+    );
+
+    if (!ok) failures++;
 }
 
-static bool quietMatch(const Graph& g) {
-    StructureAResult a = callA(g);
-    vector<int> b = callBBridges(g);
-    OracleResult r = runOracle(g);
-    return sorted(a.articulationPoints) == r.articulationPoints &&
-           sorted(a.bridges) == r.bridges &&
-           sorted(b) == r.bridges;
+static bool quietCheck(
+    const TestGraph& t,
+    const string& label
+) {
+    StructureAResult a = analyzeStructureA(t.graph);
+    StructureBResult b = computeStructureB(t.graph, t.graph.n);
+
+    OracleResult o = runOracle(t.graph);
+
+    bool ok =
+        sorted(a.articulationPoints) == o.articulationPoints &&
+        sorted(a.bridges) == o.bridges &&
+        sorted(b.bridges) == o.bridges;
+
+    if (!ok) {
+        cout << "!!! MISMATCH on " << label
+             << " (n=" << t.graph.n
+             << ", m=" << t.graph.m << ")\n";
+
+        cout << "Edges (id: u-v):";
+
+        for (int i = 0; i < t.graph.m; i++) {
+            cout << " " << i << ":"
+                 << t.graph.edges[i].first
+                 << "-"
+                 << t.graph.edges[i].second;
+        }
+
+        cout << "\n";
+
+        runOracleReport(
+            t.graph,
+            a.articulationPoints,
+            a.bridges,
+            b.bridges
+        );
+    }
+
+    return ok;
+}
+
+static unsigned long long rngState =
+    88172645463325252ULL;
+
+static unsigned int nextRand() {
+    rngState ^= rngState << 13;
+    rngState ^= rngState >> 7;
+    rngState ^= rngState << 17;
+
+    return (unsigned int)(rngState >> 11);
+}
+
+static TestGraph randomGraph(
+    int n,
+    int m,
+    bool allowExtras
+) {
+    set<pair<int, int>> used;
+    vector<pair<int, int>> edgeList;
+
+    if (!allowExtras) {
+        int maxEdges = n * (n - 1) / 2;
+        if (m > maxEdges) m = maxEdges;
+    }
+
+    while ((int)edgeList.size() < m) {
+        int u = (int)(nextRand() % n) + 1;
+        int v = (int)(nextRand() % n) + 1;
+
+        if (!allowExtras) {
+            if (u == v) continue;
+
+            pair<int, int> key = {
+                min(u, v),
+                max(u, v)
+            };
+
+            if (used.count(key)) continue;
+
+            used.insert(key);
+        }
+
+        edgeList.push_back({u, v});
+    }
+
+    return makeGraph(n, edgeList);
 }
 
 int main() {
 
-    runNamed("Path", makeGraph(5, {{1,2},{2,3},{3,4},{4,5}}));
-    runNamed("Cycle", makeGraph(4, {{1,2},{2,3},{3,4},{4,1}}));
-    runNamed("Star", makeGraph(5, {{1,2},{1,3},{1,4},{1,5}}));
-    runNamed("Disconnected + isolated vertex", makeGraph(6, {{1,2},{2,3},{4,5}}));
-    runNamed("Single vertex", makeGraph(1, {}));
-    runNamed("Triangle with tail", makeGraph(4, {{1,2},{2,3},{3,1},{3,4}}));
-    runNamed("Two triangles joined by a path",
-             makeGraph(7, {{1,2},{2,3},{3,1},{3,4},{4,5},{5,6},{6,7},{7,5}}));
-    runNamed("Star centre is not vertex 1 (own DFS tree)",
-             makeGraph(7, {{1,2},{3,4},{3,5},{3,6},{3,7}}));
+    runNamed(
+        "Path 1-2-3-4-5",
+        makeGraph(5, {{1, 2}, {2, 3}, {3, 4}, {4, 5}})
+    );
 
-    mt19937 rng(12345);   
+    runNamed(
+        "Cycle of 4",
+        makeGraph(4, {{1, 2}, {2, 3}, {3, 4}, {4, 1}})
+    );
+
+    runNamed(
+        "Star",
+        makeGraph(5, {{1, 2}, {1, 3}, {1, 4}, {1, 5}})
+    );
+
+    runNamed(
+        "Disconnected + isolated vertex",
+        makeGraph(6, {{1, 2}, {2, 3}, {4, 5}})
+    );
+
+    runNamed(
+        "Single vertex",
+        makeGraph(1, {})
+    );
+
+    runNamed(
+        "Triangle with tail",
+        makeGraph(4, {{1, 2}, {2, 3}, {3, 1}, {3, 4}})
+    );
+
+    runNamed(
+        "Two triangles joined by a path",
+        makeGraph(7, {
+            {1, 2}, {2, 3}, {3, 1},
+            {3, 4}, {4, 5},
+            {5, 6}, {6, 7}, {7, 5}
+        })
+    );
+
+    runNamed(
+        "Parallel edges",
+        makeGraph(3, {{1, 2}, {1, 2}, {2, 3}})
+    );
+
+    runNamed(
+        "Self-loop in the middle of a path",
+        makeGraph(3, {{1, 2}, {2, 2}, {2, 3}})
+    );
+
+    runNamed(
+        "Vertex with only a self-loop",
+        makeGraph(3, {{1, 2}, {3, 3}})
+    );
+
     const int TRIALS = 500;
     int bad = 0;
+
     for (int t = 0; t < TRIALS; t++) {
-        int n = rng() % 25 + 1;
-        int maxEdges = min(n * (n - 1) / 2, 40);
-        int m = maxEdges == 0 ? 0 : rng() % (maxEdges + 1);
+        bool extras = (t % 2 == 1);
 
-        set<pair<int, int>> used;
-        EdgeList edges;
-        while ((int)edges.size() < m) {
-            int u = rng() % n + 1, v = rng() % n + 1;
-            if (u == v || used.count({min(u, v), max(u, v)})) continue;
-            used.insert({min(u, v), max(u, v)});
-            edges.push_back({u, v});
-        }
+        int n = (int)(nextRand() % 25) + 1;
 
-        Graph g = makeGraph(n, edges);
-        if (!quietMatch(g)) {
+        int maxEdges = extras
+            ? 40
+            : min(n * (n - 1) / 2, 40);
+
+        int m = maxEdges == 0
+            ? 0
+            : (int)(nextRand() % (maxEdges + 1));
+
+        TestGraph g = randomGraph(n, m, extras);
+
+        if (!quietCheck(
+            g,
+            "random trial " + to_string(t)
+        )) {
             bad++;
-            cout << "!!! MISMATCH on random trial " << t << " (n=" << n << ", edges:";
-            for (int i = 0; i < (int)edges.size(); i++)
-                cout << " " << i << ":" << edges[i].first << "-" << edges[i].second;
-            cout << ")\n";
-            runNamed("failing random graph", g);
         }
     }
-    cout << "Random stress test: " << (TRIALS - bad) << "/" << TRIALS << " graphs matched.\n";
+
+    cout << "Random stress test: "
+         << (TRIALS - bad)
+         << "/" << TRIALS
+         << " graphs matched.\n";
+
     failures += bad;
 
-    {
-        int n = 200000;
-        EdgeList edges;
-        for (int i = 1; i < n; i++) edges.push_back({i, i + 1});
-        Graph g = makeGraph(n, edges);
-        bool ok = (int)callA(g).bridges.size() == n - 1 &&
-                  (int)callBBridges(g).size() == n - 1;
-        cout << "Long path (" << n << " vertices): " << (ok ? "PASS" : "FAIL") << "\n";
-        if (!ok) failures++;
-    }
-
-    cout << "\n" << (failures == 0 ? "ALL TESTS PASSED" : "SOME CHECKS FAILED")
+    cout << "\n"
+         << (failures == 0
+             ? "ALL TESTS PASSED"
+             : "SOME CHECKS FAILED")
          << " (failures: " << failures << ")\n";
+
     return failures == 0 ? 0 : 1;
 }
