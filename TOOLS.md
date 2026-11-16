@@ -49,6 +49,6 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 3. **Nov 2026 (Understanding the Path-Marking Approach):** "When a back edge connects a descendant to an ancestor, why do we mark all the tree edges along the path between them? How does this help us identify bridges?"
 
 
-4. **16 Nov 2026 (DSU Optimization and Complexity):** "If we use only path compression, can we claim the inverse-Ackermann complexity? Why do we need union by rank along with path compression, and how should we maintain the `top` vertex when two sets are merged?"
+4. ** Nov 2026 (DSU Optimization and Complexity):** "If we use only path compression, can we claim the inverse-Ackermann complexity? Why do we need union by rank along with path compression, and how should we maintain the `top` vertex when two sets are merged?"
 
-5. **16 Nov 2026 (Implementation Verification):** "After merging a vertex with its parent, why do we find the new topmost vertex again instead of simply moving to the parent? Does this ensure that an already processed tree edge is not processed repeatedly?"
+5. ** Nov 2026 (Implementation Verification):** "After merging a vertex with its parent, why do we find the new topmost vertex again instead of simply moving to the parent? Does this ensure that an already processed tree edge is not processed repeatedly?"
