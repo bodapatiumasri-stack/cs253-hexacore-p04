@@ -18,6 +18,8 @@ This file lists every AI tool or other significant tool used in this project, on
 
 ## Representative Prompts
 
+#### Dharavath Mamatha (250041015)
+
 The prompts below are taken from my own messages. Only spelling, capital letters and punctuation were corrected; the wording and the meaning are the same as I wrote them.
 
 1. **28 Oct 2026:** "So yeah, we have a DSA project. Mine is Critical Nodes and Links in a Network. So tell me once what it is trying to say, I mean everything: the guidelines and my project topic. Then we will work on that."
