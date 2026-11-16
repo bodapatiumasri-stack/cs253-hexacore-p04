@@ -15,7 +15,6 @@ This file lists every AI tool or other significant tool used in this project, on
 | Gemini (Google) | Sahasra (250041023) | Developing the Python visualization script (`plot_results.py`) using `pandas` and `matplotlib` to generate log-scale validation, scalability, and 100k topology comparison plots (Nov 2026) | `benchmark/plot_results.py`, `docs/plots/oracle_vs_structures_log.png`, `docs/plots/scalability_comparison.png`, `docs/plots/topology_100k_comparison.png` | Executed the script locally against `results.csv` and visually verified axis scaling, legends, labels, and PNG rendering quality across all three plots. |
 | Gemini (Google) | Sahasra (250041023) | Drafting and structuring the D6 scaling/crossover derivation (`D6_250041023.pdf`) and synthesizing the empirical tables and architectural analysis in the final analyst report (Nov 2026) | `docs/derivations/D6_250041023.pdf`, `docs/final_analyst_report.md` | Verified all asymptotic bounds, speedup ratios, and runtime numbers directly against `results.csv` and formatted the derivation into a clean LaTeX PDF. |
 | Gemini (Google) | Sahasra (250041023) | Resolving Git branch divergence, merge conflicts, and Pull Request integration workflows between `analyst` and `main` (Nov 2026) | `TOOLS.md` | Followed Git/GitHub branch synchronization steps and verified clean commit history prior to merging. |
-
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle design and BFS understanding (7–10 Nov 2026) | None; used for learning | Understood brute-force checking using BFS and connected components. |
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
@@ -36,7 +35,7 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 2. **Nov 2026 (Common Graph Interface Alignment):** "How should `analyzeStructureA` in `structA.hpp` and `structA.cpp` be structured to match the `Graph` adjacency list interface in `graph.hpp` and avoid header merge conflicts?"
 3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B?"
 
-## Keetha Akshaya(250041021)
+#### Keetha Akshaya(250041021)
 
 The following prompts are representative of my usage. 
 
