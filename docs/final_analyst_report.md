@@ -87,21 +87,21 @@ This report presents the empirical performance evaluation, theoretical cost mode
 ## 5. Visual Performance Analysis
 
 ![Validation Range Comparison](plots/oracle_vs_structures_log.png)
-*Figure 1: Logarithmic execution time scaling on validation graphs ($V = 1,000$ to $5,000$), illustrating the $\mathcal{O}((V+E)^2)$ Oracle blowup relative to the near-linear $\mathcal{O}(V+E)$ structures.*
+**Figure 1:** Logarithmic execution time scaling on validation graphs ( $V = 1,000$ to $5,000$ ), illustrating the $\mathcal{O}((V+E)^2)$ Oracle blowup relative to the near-linear $\mathcal{O}(V+E)$ structures.
 
 ![Scalability Range Comparison](plots/scalability_comparison.png)
-*Figure 2: Mean execution time scaling across all 7 topologies from $V = 1,000$ up to $V = 100,000$.*
+**Figure 2:** Mean execution time scaling across all 7 topologies from $V = 1,000$ up to $V = 100,000$.
 
 ![Topology Comparison at 100k](plots/topology_100k_comparison.png)
-*Figure 3: Side-by-side runtime comparison across all 7 adversarial topologies at $V \approx 100,000$.*
+**Figure 3:** Side-by-side runtime comparison across all 7 adversarial topologies at $V \approx 100,000$.
 
 ---
 
 ## 6. Performance Gap & Architectural Synthesis
 
 ### 6.1 Theoretical vs. Empirical Alignment
-- **Oracle Engine ($\mathcal{O}((V+E)^2)$):** Scaling $V$ by $5\times$ (from $1,000$ to $5,000$) increased Oracle runtime from **1,171.38 ms** to **21,746.50 ms** ($18.56\times$) on `empty` graphs and from **100.39 ms** to **4,435.29 ms** ($44.18\times$) on `random` graphs, empirically confirming quadratic/cubic scaling and validating the $V > 5,000$ / $E > 50,000$ cutoff.
-- **Structures A & B ($\Theta(V+E)$ vs. $\mathcal{O}((V+E)\alpha(V))$):** Both structures scaled linearly across a $100\times$ increase in vertex count ($1,000 \to 100,000$), confirming that iterative DFS and path-compressed Union-Find eliminate recursion stack overflows and sustain sub-160 ms latency even at $V = 100,000$ and $E = 2.45 \times 10^6$.
+- **Oracle Engine $\mathcal{O}((V+E)^2)$:** Scaling $V$ by $5\times$ (from $1,000$ to $5,000$) increased Oracle runtime from **1,171.38 ms** to **21,746.50 ms** ($18.56\times$) on `empty` graphs and from **100.39 ms** to **4,435.29 ms** ($44.18\times$) on `random` graphs, empirically confirming quadratic/cubic scaling and validating the $V > 5,000$ / $E > 50,000$ cutoff.
+- **Structures A & B ( $\Theta(V+E)$ vs. $\mathcal{O}((V+E)\alpha(V))$ ):** Both structures scaled linearly across a $100\times$ increase in vertex count ($1,000 \to 100,000$), confirming that iterative DFS and path-compressed Union-Find eliminate recursion stack overflows and sustain sub-160 ms latency even at $V = 100,000$ and $E = 2.45 \times 10^6$.
 
 ### 6.2 Explaining the Performance Gap Across Topologies
 1. **Single-Pass Cache Locality Advantage (Structure A):**
