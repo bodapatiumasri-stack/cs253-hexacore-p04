@@ -21,6 +21,9 @@ int countComponents(const AdjList& adj, int n,
 
 OracleResult runOracle(const Graph& graph);
 
+std::vector<int> oracleArticulationPoints(const Graph& graph);
+std::vector<int> oracleBridges(const Graph& graph);
+
 bool oracleTooLarge(const Graph& graph);
 
 bool compareResults(const std::string& label,
