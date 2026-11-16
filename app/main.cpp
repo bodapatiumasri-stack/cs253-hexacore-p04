@@ -2,7 +2,7 @@
 #include <vector>
 #include "ranking.h"
 #include "../graph.hpp"
-#include "../structA.hpp"
+#include "../src/structA/structA.hpp"
 #include "block_cut.h"
 
 using namespace std;
