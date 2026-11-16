@@ -87,13 +87,13 @@ This report presents the empirical performance evaluation, theoretical cost mode
 ## 5. Visual Performance Analysis
 
 ![Validation Range Comparison](plots/oracle_vs_structures_log.png)
-**Figure 1:** *Logarithmic execution time scaling on validation graphs ( $V = 1,000$ to $5,000$ ), illustrating the $\mathcal{O}((V+E)^2)$ Oracle blowup relative to the near-linear $\mathcal{O}(V+E)$ structures.*
+**Figure 1:** Logarithmic execution time scaling on validation graphs ( $V = 1,000$ to $5,000$ ), illustrating the $\mathcal{O}((V+E)^2)$ Oracle blowup relative to the near-linear $\mathcal{O}(V+E)$ structures.
 
 ![Scalability Range Comparison](plots/scalability_comparison.png)
-**Figure 2:** *Mean execution time scaling across all 7 topologies from $V = 1,000$ up to $V = 100,000$.*
+**Figure 2:** Mean execution time scaling across all 7 topologies from $V = 1,000$ up to $V = 100,000$.
 
 ![Topology Comparison at 100k](plots/topology_100k_comparison.png)
-**Figure 3:** *Side-by-side runtime comparison across all 7 adversarial topologies at $V \approx 100,000$.*
+**Figure 3:** Side-by-side runtime comparison across all 7 adversarial topologies at $V \approx 100,000$.
 
 ---
 
