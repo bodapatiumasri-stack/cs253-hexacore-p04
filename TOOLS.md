@@ -57,8 +57,10 @@ The following prompts are representative of my usage.
 
 1. **7 Nov 2026:** "Design a brute-force Oracle using BFS to identify articulation points and bridges by removing vertices and edges and comparing connected component counts. Include edge cases and time complexity."
 
-2. **15–16 Nov 2026:** "Review the Oracle implementation for correctness, including disconnected graphs and edge IDs. Explain its integration with Structure A and Structure B, suitable function signatures and output format."
-3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B
+2. **15 Nov 2026:** "Review the Oracle implementation for correctness, including disconnected graphs and edge IDs. Explain its integration with Structure A and Structure B, suitable function signatures and output format."
+
+3. **16 Nov 2026 (Oracle Output Format & Integration):** "What should the Oracle output format look like? Include the connected component counts after vertex and edge removal, and give the exact function signatures to add to the common interface so the Oracle can be integrated with Structure A and Structure B."
+
 #### Sahasra (250041023)
 
 1. **Nov 2026 (Benchmark Harness & Oracle Verification):** "How do I structure `benchmark_runner.cpp` in C++11 using `std::chrono::steady_clock` to benchmark Structure A, Structure B, and the Oracle across all 35 adversarial datasets, verify exact output agreement, and skip the Oracle when $V > 5,000$ or $E > 50,000$?"
