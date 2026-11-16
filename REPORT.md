@@ -165,3 +165,51 @@ https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/14
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
 . Reading-list item and how my code differs from the paper: see Section 6.
+
+## 8. Adversarial Inputs
+
+All generators are located in `adversary/`. Each generator prints a graph in the common input format (`n m`, followed by one `u v` pair per line). Vertices are numbered from 1 to n, and the generated graphs contain no self-loops or duplicate edges. This allows Structure A, Structure B, and the Oracle to process the same input. Large graphs are generated when needed and are not committed to the repository.
+
+### 8.1 Generators and Targets
+
+| Generator | How it builds the graph | Target | Expected answer |
+|---|---|---|---|
+| `path n` | Connects consecutive vertices with edges `(i, i+1)` | Root rule, bug A (root has one child); deep DFS | n−2 articulation points, n−1 bridges; vertex 1 is not an articulation point |
+| `cycle n` | Builds a path and adds edge `(n, 1)` to close the cycle | Long simple cycle; root rule, bug A | 0 articulation points, 0 bridges, 1 biconnected block |
+| `star n` | Connects vertex 1 to every other vertex | Root rule, bug B (root has n−1 children) | 1 articulation point (vertex 1), n−1 bridges |
+| `cliques k s` | Builds k cliques of size s sharing vertex 1 (k ≥ 2, s ≥ 3) | Cliques joined at one vertex | 1 articulation point (vertex 1), 0 bridges, k biconnected blocks |
+| `disconnected n` | Creates a path, a cycle, a star, and one isolated vertex (n ≥ 10) | DFS restarts; root rule in each DFS tree; isolated vertex | Let a = ⌊(n−1)/3⌋ and c = n−1−2a. The graph has a−1 articulation points and a+c−2 bridges |
+| `empty n` | Creates n vertices and no edges | Isolated vertices | 0 articulation points, 0 bridges |
+| `random n m seed` | Generates seeded random edges and shuffles vertex labels | General inputs | Results are compared with the Oracle |
+
+For large-input generation, `cliques 100 142` creates 14,101 vertices and 1,001,100 edges. `path 1000000` creates one million vertices, and `random 100000 1000000 seed` creates 100,000 vertices and one million edges. These large inputs were not included in the combined testing described below.
+
+### 8.2 Worst-Case Argument (From D5)
+
+An undirected DFS has no cross edges. Every non-tree edge connects a vertex to one of its ancestors, which is why low-link values can capture the back edges needed to identify articulation points and bridges.
+
+The DFS root needs a separate rule because it has no parent. It is an articulation point only if it has at least two DFS-tree children.
+
+A program that incorrectly applies the normal non-root test to the root may report a false articulation point on `path` and `cycle` (bug A). A program that skips the root entirely may fail to identify the articulation point in `star` (bug B).
+
+The `disconnected` generator checks whether the root rule is applied separately to every DFS tree. Its star centre is the root of its own component and is not vertex 1.
+
+A long path can also make recursive DFS reach a very large depth, potentially causing stack overflow. An iterative DFS avoids relying on deep recursive calls.
+
+The complete proof is provided in `docs/derivations/D5_250041015.pdf`.
+
+### 8.3 What Was Measured
+
+- All seven adversarial generators were compiled successfully and tested on small inputs. Their generated graphs were checked against the expected graph properties.
+- **Combined run on `main` (16 Nov 2026):** I compiled the local checker (`adversary_check.cpp`) together with the team's Structure A, Structure B, and Oracle using `g++ -std=c++17 -Wall -Wextra -I. -DUSE_TEAM_ORACLE` on my friend's laptop. The only compiler warning shown was an unused `argv` parameter in the local checker.
+- I compiled all seven generators separately and ran them through the checker. All eight test cases returned `RESULT: ALL OK`: `path 5`, `path 10`, `cycle 10`, `star 10`, `empty 5`, `disconnected 10`, `cliques 3 4`, and `random 50 80 1`.
+- For `path 5`, Structure A reported articulation points `{2, 3, 4}` and bridges `{0, 1, 2, 3}`. Structure B reported the same bridge IDs.
+- The random generator test used seed 1 in `random 50 80 1`.
+- Only small inputs were tested in the combined run. No full-scale testing is claimed here.
+
+### 8.4 Limitations
+
+- The combined run covers small inputs only, so no full-scale result (10⁵ vertices or 10⁶ edges) is claimed here.
+- The `random` generator accepts at most m = n(n−1)/4 edges to keep generation manageable.
+- There is no generator for self-loops or parallel edges because they are outside the agreed input format.
+- I did not take timing measurements. Performance measurements are covered by the Analyst.
