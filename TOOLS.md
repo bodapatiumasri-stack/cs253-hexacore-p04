@@ -23,6 +23,6 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 3. **15 Nov 2026 (checking my generators with the team's code):** "She uploaded graph.hpp, so tell me step by step what to do."
 #### Rishika Goyal (250008029)
 
-1. **Nov 2026 (Iterative Tarjan & Edge Cases):** "How do I convert Tarjan's DFS into an iterative version using an explicit stack so it handles parallel edges via `edge_id`, self-loops, and isolated vertices cleanly?"
-2. **Nov 2026 (Header & Interface Alignment):** "How should I align `analyzeStructureA` in `structA.hpp` and `structA.cpp` with `graph.hpp` so it works cleanly with both 1-argument and 2-argument calls without merge conflicts?"
-3. **Nov 2026 (Verification & Live Modifications):** "Walk me through how to verify Structure A against the brute-force Oracle and Structure B, and practice modifying `structA.cpp` to extract BCC vertices and component split counts."
+1. **Nov 2026 (Iterative Tarjan DFS & Multigraph Edge Cases):** "How can Tarjan's DFS algorithm be implemented iteratively using an explicit stack so it avoids recursion overflow on deep graphs while handling parallel edges via `edge_id`, self-loops, and isolated vertices?"
+2. **Nov 2026 (Common Graph Interface Alignment):** "How should `analyzeStructureA` in `structA.hpp` and `structA.cpp` be structured to match the `Graph` adjacency list interface in `graph.hpp` and avoid header merge conflicts?"
+3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B?"
