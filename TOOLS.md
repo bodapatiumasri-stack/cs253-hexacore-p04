@@ -16,6 +16,11 @@ This file lists every AI tool or other significant tool used in this project, on
 | Gemini (Google) | Sahasra (250041023) | Drafting and structuring the D6 scaling/crossover derivation (`D6_250041023.pdf`) and synthesizing the empirical tables and architectural analysis in the final analyst report (Nov 2026) | `docs/derivations/D6_250041023.pdf`, `docs/final_analyst_report.md` | Verified all asymptotic bounds, speedup ratios, and runtime numbers directly against `results.csv` and formatted the derivation into a clean LaTeX PDF. |
 | Gemini (Google) | Sahasra (250041023) | Resolving Git branch divergence, merge conflicts, and Pull Request integration workflows between `analyst` and `main` (Nov 2026) | `TOOLS.md` | Followed Git/GitHub branch synchronization steps and verified clean commit history prior to merging. |
 
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle design and BFS understanding (7–10 Nov 2026) | None; used for learning | Understood brute-force checking using BFS and connected components. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Testing and complexity review (16 Nov 2026) | `oracle/oracle_integration_test.cpp` | Reviewed edge cases and verified that 500 random stress-test graphs matched. |
+
 ## Representative Prompts
 
 #### Dharavath Mamatha (250041015)
@@ -31,6 +36,15 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 
 1. **Nov 2026 (Iterative Tarjan DFS & Multigraph Edge Cases):** "How can Tarjan's DFS algorithm be implemented iteratively using an explicit stack so it avoids recursion overflow on deep graphs while handling parallel edges via `edge_id`, self-loops, and isolated vertices?"
 2. **Nov 2026 (Common Graph Interface Alignment):** "How should `analyzeStructureA` in `structA.hpp` and `structA.cpp` be structured to match the `Graph` adjacency list interface in `graph.hpp` and avoid header merge conflicts?"
+3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B?"
+
+## Keetha Akshaya(250041021)
+
+The following prompts are representative of my usage. 
+
+1. **7 Nov 2026:** "Design a brute-force Oracle using BFS to identify articulation points and bridges by removing vertices and edges and comparing connected component counts. Include edge cases and time complexity."
+
+2. **15–16 Nov 2026:** "Review the Oracle implementation for correctness, including disconnected graphs and edge IDs. Explain its integration with Structure A and Structure B, suitable function signatures and output format."
 3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B
 #### Sahasra (250041023)
 
