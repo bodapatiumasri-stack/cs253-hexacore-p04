@@ -349,4 +349,4 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
   1. `docs/plots/oracle_vs_structures_log.png` — Log-scale runtime comparison validating Oracle quadratic divergence against linear Structures A and B ($V = 1,000$ to $5,000$).
   2. `docs/plots/scalability_comparison.png` — Mean execution time scaling across all 7 topologies from $V = 1,000$ to $V = 100,000$.
   3. `docs/plots/topology_100k_comparison.png` — Grouped bar comparison across all 7 adversarial topologies at $V \approx 100,000$.
-```[cite: 6, 7, 8, 9, 10, 11, 13]
+
