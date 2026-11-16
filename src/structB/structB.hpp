@@ -12,4 +12,8 @@ struct StructureBResult {
 
 StructureBResult computeStructureB(const Graph& adj,int n);
 
+inline StructureBResult computeStructureB(const Graph& adj) {
+    return computeStructureB(adj, adj.n);
+}
+
 #endif
