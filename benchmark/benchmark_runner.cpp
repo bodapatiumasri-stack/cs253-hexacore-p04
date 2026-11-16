@@ -6,11 +6,13 @@
 #include <algorithm>
 
 #include "../graph.hpp"
-using Graph = GraphData; // Bridges structB.hpp expecting "Graph" instead of "GraphData"
+using AdjList = std::vector<std::vector<Edge>>;
+using GraphData = Graph;
+
 
 #include "../src/structA/structA.hpp"
 #include "../src/structB/structB.hpp"
-#include "../src/oracle/oracle.hpp"
+#include "../oracle/oracle.hpp"
 
 GraphData load_graph(const std::string& filepath) {
     GraphData g;
@@ -26,7 +28,7 @@ GraphData load_graph(const std::string& filepath) {
     }
 
     g.edges.reserve(g.m);
-    g.adj.assign(g.n + 1, {}); // 1-indexed: valid vertices 1..n
+    g.adj.assign(g.n + 1, {}); 
 
     for (int id = 0; id < g.m; ++id) {
         int u, v;
@@ -51,7 +53,7 @@ int main(int argc, char* argv[]) {
     GraphData g = load_graph(filepath);
     if (g.n <= 0) return 1;
 
-    // Write CSV header if results.csv does not exist or is empty
+    
     std::ifstream check_csv("benchmark/results.csv");
     bool write_header = !check_csv.good() || check_csv.peek() == std::ifstream::traits_type::eof();
     check_csv.close();
@@ -60,27 +62,25 @@ int main(int argc, char* argv[]) {
     if (write_header) {
         csv_out << "Graph_Path,V,E,StructA_ms,StructB_ms,Oracle_ms,Verified\n";
     }
-
-    // --- 1. Benchmark Structure A (Iterative Tarjan DFS) ---
+-
     auto start_A = std::chrono::high_resolution_clock::now();
     StructureAResult resA = analyzeStructureA(g.adj, g.n);
     auto end_A = std::chrono::high_resolution_clock::now();
     double time_A = std::chrono::duration<double, std::milli>(end_A - start_A).count();
 
-    // --- 2. Benchmark Structure B (Union-Find Path Marking) ---
+
     auto start_B = std::chrono::high_resolution_clock::now();
     StructureBResult resB = computeStructureB(g, g.n);
     auto end_B = std::chrono::high_resolution_clock::now();
     double time_B = std::chrono::duration<double, std::milli>(end_B - start_B).count();
 
-    // --- 3. Benchmark Oracle & Verify Correctness (only on small graphs) ---
+    /
     double time_Oracle = -1.0;
     std::string verified = "SKIPPED";
 
     if (!oracleTooLarge(g)) {
         auto start_O = std::chrono::high_resolution_clock::now();
-        std::vector<int> oracle_ap = oracleArticulationPoints(g);
-        std::vector<int> oracle_br = oracleBridges(g);
+        OracleResult o_res = runOracle(g); std::vector<int> oracle_ap = o_res.articulationPoints; std::vector<int> oracle_br = o_res.bridges;
         auto end_O = std::chrono::high_resolution_clock::now();
         time_Oracle = std::chrono::duration<double, std::milli>(end_O - start_O).count();
 
@@ -112,3 +112,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
