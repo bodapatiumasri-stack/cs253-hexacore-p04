@@ -3,7 +3,7 @@
 #include <utility>
 #include <vector>
 
-#include "graph.hpp"
+#include "../graph.hpp"
 #include "oracle.hpp"
 
 using namespace std;
