@@ -26,3 +26,17 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 1. **Nov 2026 (Iterative Tarjan & Edge Cases):** "How do I convert Tarjan's DFS into an iterative version using an explicit stack so it handles parallel edges via `edge_id`, self-loops, and isolated vertices cleanly?"
 2. **Nov 2026 (Header & Interface Alignment):** "How should I align `analyzeStructureA` in `structA.hpp` and `structA.cpp` with `graph.hpp` so it works cleanly with both 1-argument and 2-argument calls without merge conflicts?"
 3. **Nov 2026 (Verification & Live Modifications):** "Walk me through how to verify Structure A against the brute-force Oracle and Structure B, and practice modifying `structA.cpp` to extract BCC vertices and component split counts."
+
+
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle design and BFS understanding (7–10 Nov 2026) | None; used for learning | Understood brute-force checking using BFS and connected components. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Testing and complexity review (16 Nov 2026) | `oracle/oracle_integration_test.cpp` | Reviewed edge cases and verified that 500 random stress-test graphs matched. |
+
+## Representative Prompts
+
+The following prompts are representative of my usage. Only spelling, capital letters and punctuation were corrected.
+
+1. **7 Nov 2026:** "Design a brute-force Oracle using BFS to identify articulation points and bridges by removing vertices and edges and comparing connected component counts. Include edge cases and time complexity."
+
+2. **15–16 Nov 2026:** "Review the Oracle implementation for correctness, including disconnected graphs and edge IDs. Explain its integration with Structure A and Structure B, suitable function signatures and output format."
