@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     }
 -
     auto start_A = std::chrono::high_resolution_clock::now();
-    StructureAResult resA = analyzeStructureA(g.adj, g.n);
+    StructureAResult resA = analyzeStructureA(g, g.n);
     auto end_A = std::chrono::high_resolution_clock::now();
     double time_A = std::chrono::duration<double, std::milli>(end_A - start_A).count();
 
