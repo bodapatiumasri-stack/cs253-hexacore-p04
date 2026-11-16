@@ -12,6 +12,11 @@ This file lists every AI tool or other significant tool used in this project, on
 | Gemini (Google) | Rishika Goyal (250008029) | Converting recursive Tarjan's DFS into an iterative `DFSFrame` state-machine implementation and handling multigraph edge cases (`edge_id` tracking, self-loops, isolated vertices) (Nov 2026) | `src/structA/structA.hpp`, `src/structA/structA.cpp` | Reviewed and adapted the iterative stack unwinding logic, added `std::sort` for deterministic output, compiled with `g++ -std=c++17 -O2 -Wall -Wextra` with zero warnings, and verified against `oracle.cpp` and `structB.cpp`. |
 | Gemini (Google) | Rishika Goyal (250008029) | Reconciling `analyzeStructureA` function signatures and Common Graph Interface (`graph.hpp`) headers during team branch integration (Nov 2026) | `src/structA/structA.hpp`, `src/structA/structA.cpp`, `graph.hpp` | Resolved header merge conflicts, verified 1-based indexing and `Edge { to, id }` compliance, and tested end-to-end compilation with teammate modules. |
 
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle design and BFS understanding (7–10 Nov 2026) | None; used for learning | Understood brute-force checking using BFS and connected components. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
+| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Testing and complexity review (16 Nov 2026) | `oracle/oracle_integration_test.cpp` | Reviewed edge cases and verified that 500 random stress-test graphs matched. |
+
 ## Representative Prompts
 
 The prompts below are taken from my own messages. Only spelling, capital letters and punctuation were corrected; the wording and the meaning are the same as I wrote them.
@@ -27,15 +32,9 @@ The prompts below are taken from my own messages. Only spelling, capital letters
 2. **Nov 2026 (Common Graph Interface Alignment):** "How should `analyzeStructureA` in `structA.hpp` and `structA.cpp` be structured to match the `Graph` adjacency list interface in `graph.hpp` and avoid header merge conflicts?"
 3. **Nov 2026 (Determinism & Cross-Module Verification):** "How can I guarantee deterministic output ordering for articulation points, bridges, and biconnected component edge lists in Structure A so they match the Oracle and Structure B?"
 
+## Keetha Akshaya(250041021)
 
-| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle design and BFS understanding (7–10 Nov 2026) | None; used for learning | Understood brute-force checking using BFS and connected components. |
-| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
-| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
-| Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Testing and complexity review (16 Nov 2026) | `oracle/oracle_integration_test.cpp` | Reviewed edge cases and verified that 500 random stress-test graphs matched. |
-
-## Representative Prompts
-
-The following prompts are representative of my usage. Only spelling, capital letters and punctuation were corrected.
+The following prompts are representative of my usage. 
 
 1. **7 Nov 2026:** "Design a brute-force Oracle using BFS to identify articulation points and bridges by removing vertices and edges and comparing connected component counts. Include edge cases and time complexity."
 
