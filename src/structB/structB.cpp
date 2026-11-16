@@ -14,22 +14,6 @@ static bool isAncestor(
     return tin[u] <= tin[v] && tout[v] <= tout[u];
 }
 
-static int findJump(int x, std::vector<int>& jump) {
-
-    int root = x;
-
-    while (jump[root] != root) {
-        root = jump[root];
-    }
-
-    while (jump[x] != x) {
-        int p = jump[x];
-        jump[x] = root;
-        x = p;
-    }
-
-    return root;
-}
 
 static void buildDFS(
     const Graph& g,
@@ -117,6 +101,49 @@ static std::vector<std::pair<int, int>> findBackEdges(
 }
 
 
+static int findSet(int x, std::vector<int>& dsu) {
+    int root = x;
+    while (dsu[root] != root) {
+        root = dsu[root];
+    }
+    while (dsu[x] != root) {        
+        int p = dsu[x];
+        dsu[x] = root;
+        x = p;
+    }
+    return root;
+}
+
+static void unionSets(
+    int a,
+    int b,
+    std::vector<int>& dsu,
+    std::vector<int>& rnk,
+    std::vector<int>& top,
+    const std::vector<int>& depth
+) {
+    a = findSet(a, dsu);
+    b = findSet(b, dsu);
+
+    if (a == b) {
+        return;
+    }
+
+    if (rnk[a] < rnk[b]) {
+        std::swap(a, b);
+    }
+
+    dsu[b] = a;
+
+    if (rnk[a] == rnk[b]) {
+        rnk[a]++;
+    }
+
+    if (depth[top[b]] < depth[top[a]]) {
+        top[a] = top[b];
+    }
+}
+
 static std::vector<bool> markCycleEdges(
     const Graph& g,
     const std::vector<int>& parent,
@@ -127,10 +154,11 @@ static std::vector<bool> markCycleEdges(
     int n = g.n;
     int m = g.m;
 
-    std::vector<int> jump(n + 1);
+    std::vector<int> dsu(n + 1), rnk(n + 1, 0), top(n + 1);
 
     for (int i = 0; i <= n; i++) {
-        jump[i] = i;
+        dsu[i] = i;
+        top[i] = i;
     }
 
     std::vector<bool> marked(m, false);
@@ -140,15 +168,15 @@ static std::vector<bool> markCycleEdges(
         int descendant = edge.first;
         int ancestor = edge.second;
 
-        int x = findJump(descendant, jump);
+        int x = top[findSet(descendant, dsu)];
 
         while (depth[x] > depth[ancestor]) {
 
             marked[parentEdge[x]] = true;
 
-            jump[x] = findJump(parent[x], jump);
+            unionSets(x, parent[x], dsu, rnk, top, depth);
 
-            x = findJump(x, jump);
+            x = top[findSet(x, dsu)];
         }
     }
 
