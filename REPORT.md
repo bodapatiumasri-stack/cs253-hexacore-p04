@@ -1,10 +1,10 @@
 ### Architect Module (D3) — Block-Cut Forest & Resilience Application
 
-####1. Overview & Role Responsibilities
+#### 1. Overview & Role Responsibilities
 **Role:** Architect (Owner: D3)  
 **Primary Objective:** Design the system-wide module interfaces and implement the Block-Cut Forest construction, Lowest Common Ancestor (LCA) preprocessing, $O(\log n)$ vertex-failure connectivity queries, critical node impact ranking, and the end-to-end CLI application.
 
-### Owned & Integrated Files
+##### Owned & Integrated Files
 * `INTERFACE.md`: System-wide architectural contract defining the shared `Graph` representation, module signatures across D1–D4, and integration/testing rules.
 * `graph.hpp`: Core 1-based undirected graph data structure supporting unique 0-based edge IDs and parallel edges.
 * `app/block_cut.h` & `app/block_cut.cpp`: Data structures and algorithms for building the Block-Cut Forest, binary lifting tables, and single-vertex failure separation queries.
@@ -27,7 +27,7 @@ The Architect module serves as the central orchestration layer connecting low-le
 
 #### 3. Core Algorithms & Implementation Details
 
-### A. Block-Cut Forest Construction (`app/block_cut.cpp`)
+##### A. Block-Cut Forest Construction (`app/block_cut.cpp`)
 * **Bipartite Node Indexing**:
   * Block nodes are assigned indices `0` through `blockCount - 1`.
   * Articulation nodes are offset and assigned indices `blockCount` through `blockCount + articulationCount - 1`, giving `totalNodes = blockCount + articulationCount`.
@@ -37,14 +37,14 @@ The Architect module serves as the central orchestration layer connecting low-le
   * Non-articulation vertices belong to exactly one biconnected component and map to that component's block node (`vertexBlocks[v][0]`).
 * **Edge Construction**: Undirected edges are added between each articulation node `artNode` and every block node `blockId` containing that articulation vertex.
 
-### B. Iterative Binary Lifting & Tree Distance
+##### B. Iterative Binary Lifting & Tree Distance
 * **Stack-Safe Traversal**: Uses an explicit `std::stack<int>` for DFS traversal over the forest rather than recursion, preventing call-stack overflow on deep, path-like graphs.
 * **LCA & Shortest Path Distance**:
   * `findLCA(forest, u, v)` equalizes node depths and performs binary jumps in $O(\log N)$ time, returning `-1` if `component[u] != component[v]`.
   * `getDistance(forest, u, v)` computes exact tree distance via:
     $$\text{dist}(u, v) = \text{depth}[u] + \text{depth}[v] - 2 \cdot \text{depth}[\text{LCA}(u, v)]$$
 
-### C. Vertex-Failure Connectivity Queries (`isDisconnectedAfterFailure`)
+##### C. Vertex-Failure Connectivity Queries (`isDisconnectedAfterFailure`)
 Determines whether removing `failedVertex` disconnects surviving vertices `x` and `y`:
 1. **Boundary & Endpoint Removal**: Returns `true` if any input vertex is outside `[1, n]` or if `failedVertex == x` or `failedVertex == y`.
 2. **Identity & Initial Component Check**: Returns `false` if `x == y` (and survives), or `true` if `nodeX` and `nodeY` already reside in different connected components (`component[nodeX] != component[nodeY]`).
@@ -52,7 +52,7 @@ Determines whether removing `failedVertex` disconnects surviving vertices `x` an
 4. **Tree-Path Separation Test**: Because $F$ is a forest, removing articulation node $f$ separates `nodeX` and `nodeY` if and only if $f$ lies on the unique simple path between them:
    $$\text{dist}(\text{nodeX}, \text{nodeY}) == \text{dist}(\text{nodeX}, f) + \text{dist}(f, \text{nodeY})$$
 
-### D. Critical Node Impact Ranking (`app/ranking.cpp`)
+##### D. Critical Node Impact Ranking (`app/ranking.cpp`)
 Quantifies the topological fragmentation caused by removing each articulation vertex $v$:
 * **Component Fragmentation Formula**: In a bipartite block-cut forest, the degree of an articulation node (`branches = forest.adj[node].size()`) equals the number of biconnected blocks joined at $v$. Removing $v$ splits its parent connected component into `branches` separate components:
   $$\text{componentsAfterRemoval} = \text{originalComponents} - 1 + \text{branches}$$
