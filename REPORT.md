@@ -267,3 +267,86 @@ The complete proof is provided in `docs/derivations/D5_250041015.pdf`.
 - The `random` generator accepts at most m = n(n−1)/4 edges to keep generation manageable.
 - There is no generator for self-loops or parallel edges because they are outside the agreed input format.
 - I did not take timing measurements. Performance measurements are covered by the Analyst.
+
+## 9. Analyst — Predicted Cost Model & Empirical Benchmarking
+
+**Role:** Analyst (Owner: D6 — Sahasra, `250041023`)  
+**Derivation & Reports:** `docs/derivations/D6_250041023.pdf`, `docs/theoritical_cost_models.md`, `docs/final_analyst_report.md`  
+**Benchmark & Plotting Code:** `benchmark/benchmark_runner.cpp`, `benchmark/plot_results.py`, `results/results.csv`
+
+---
+
+### 9.1 Pre-Measurement Theoretical Cost Model (D6)
+
+Before running empirical benchmarks, asymptotic time and space bounds were established for all three decomposition engines:
+
+| Engine / Module | Worst-Case Time | Auxiliary Space | Theoretical Justification |
+| :--- | :--- | :--- | :--- |
+| **Structure A** (Iterative Tarjan DFS) | $\mathcal{O}(V + E)$ | $\mathcal{O}(V + E)$ | Single-pass iterative DFS visits each vertex once and traverses each undirected edge twice, updating $\text{disc}[u]$ and $\text{low}[u]$ in $\mathcal{O}(1)$ time per edge using explicit call and edge stacks. |
+| **Structure B** (Union-Find Path Marking) | $\mathcal{O}((V + E)\,\alpha(V))$ | $\mathcal{O}(V + E)$ | Builds a DFS spanning tree in $\mathcal{O}(V + E)$ time, then contracts cycle tree-edges along back-edges using path-compressed, rank-ordered Disjoint-Set Union ($\alpha(V) \le 4$ for all practical $V$). |
+| **Oracle Baseline** (Brute-Force BFS) | $\mathcal{O}(V(V + E))$ | $\mathcal{O}(V + E)$ | Masks each vertex/edge individually and executes a full $\mathcal{O}(V + E)$ BFS component count across all $V$ vertices, yielding quadratic scaling. |
+
+**Pre-Measurement Performance Predictions:**
+1. **Validation Regime ($V \le 5,000$):** All three engines complete within practical bounds, enabling ground-truth Oracle verification.
+2. **Scalability Regime ($V > 5,000$ to $V = 100,000$):** The Oracle diverges quadratically ($\mathcal{O}(V^2 + VE)$) and is bypassed via `oracleTooLarge(g)`, while Structures A and B maintain linear growth.
+3. **Structure A vs. Structure B Constant-Factor Separation:** Structure B is predicted to exhibit higher constant-factor overhead than Structure A due to multi-phase processing (DFS tree construction, back-edge extraction, DSU cycle marking, and BFS component collection) and non-contiguous pointer chasing during DSU path compression.
+
+---
+
+### 9.2 Benchmark Harness & Experimental Setup
+
+* **Benchmark Harness (`benchmark/benchmark_runner.cpp`):**
+  * Loads graphs in standard `n m` edge-list format into the shared 1-based `Graph` representation (`graph.hpp`) with unique 0-based edge IDs.
+  * Measures wall-clock execution time independently for `analyzeStructureA`, `computeStructureB`, and `runOracle` using `std::chrono::high_resolution_clock` (reported in milliseconds).
+  * Automatically sorts output vectors (`articulationPoints`, `bridges`) and asserts exact equality across Structure A, Structure B, and the Oracle (`PASS` / `MISMATCH`) whenever `!oracleTooLarge(g)`, logging all metrics to `results.csv`.
+* **Test Suite Coverage:** **35 adversarial datasets** spanning **7 topologies** (`cliques`, `cycle`, `disconnected`, `empty`, `path`, `random`, `star`) across **5 vertex scales** ($V \approx 1,000$, $5,000$, $10,000$, $50,000$, and $100,000$, up to $E = 2,450,000$).
+* **Compilation & Execution Environment:** Windows 11 (ARM64), compiled with `g++.exe (MinGW.org GCC-6.3.0-1) 6.3.0` (`-std=c++11 -O2`), Processor: `Snapdragon(R) X - X126100 - Qualcomm(R) Oryon(TM) CPU`.
+
+---
+
+### 9.3 Empirical Results & Verification Summary
+
+* **100% Ground-Truth Verification:** On all **13** Oracle-eligible validation graphs ($V \le 5,000$), Structure A and Structure B achieved **13 / 13 `PASS`** agreement with the Oracle; the remaining **22** large-scale datasets ($V \ge 10,000$ or $E > 50,000$) were marked `SKIPPED` by `oracleTooLarge(g)`.
+* **Validation Regime ($V \approx 1,000$ and $5,000$):**
+
+| Dataset | $V$ | $E$ | Structure A (ms) | Structure B (ms) | Oracle (ms) | Check |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `cliques_1000.txt` | 981 | 24,500 | 0.000 | 13.591 | 2,524.930 | **PASS** |
+| `cycle_1000.txt` | 1,000 | 1,000 | 0.842 | 1.342 | 31.539 | **PASS** |
+| `cycle_5000.txt` | 5,000 | 5,000 | 0.000 | 5.769 | 862.235 | **PASS** |
+| `disconnected_1000.txt` | 1,000 | 997 | 1.505 | 4.008 | 29.697 | **PASS** |
+| `disconnected_5000.txt` | 5,000 | 4,997 | 3.471 | 0.000 | 899.348 | **PASS** |
+| `empty_1000.txt` | 1,000 | 0 | 0.000 | 0.000 | 1,171.380 | **PASS** |
+| `empty_5000.txt` | 5,000 | 0 | 5.451 | 0.000 | 21,746.500 | **PASS** |
+| `path_1000.txt` | 1,000 | 999 | 2.004 | 4.957 | 62.608 | **PASS** |
+| `path_5000.txt` | 5,000 | 4,999 | 3.953 | 8.096 | 966.136 | **PASS** |
+| `random_1000.txt` | 1,000 | 3,000 | 3.809 | 0.000 | 100.394 | **PASS** |
+| `random_5000.txt` | 5,000 | 15,000 | 11.257 | 4.008 | 4,435.290 | **PASS** |
+| `star_1000.txt` | 1,000 | 999 | 0.000 | 8.771 | 24.213 | **PASS** |
+| `star_5000.txt` | 5,000 | 4,999 | 0.000 | 11.624 | 835.784 | **PASS** |
+
+*(Note: `0.000 ms` values indicate sub-millisecond execution below the OS steady-clock timer resolution).*
+
+* **Extreme-Scale Regime ($V \approx 100,000$ Across All 7 Topologies):**
+
+| Dataset ($V \approx 100,000$) | $V$ | $E$ | Structure A (ms) | Structure B (ms) | Speedup (A vs. B) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `cliques_100000.txt` | 98,001 | 2,450,000 | 125.024 | 132.704 | $1.06\times$ faster |
+| `cycle_100000.txt` | 100,000 | 100,000 | 13.426 | 33.894 | $2.52\times$ faster |
+| `disconnected_100000.txt` | 100,000 | 99,997 | 46.688 | 103.839 | $2.22\times$ faster |
+| `empty_100000.txt` | 100,000 | 0 | 29.007 | 153.933 | $5.31\times$ faster |
+| `path_100000.txt` | 100,000 | 99,999 | 32.917 | 156.573 | $4.76\times$ faster |
+| `random_100000.txt` | 100,000 | 300,000 | 67.515 | 121.513 | $1.80\times$ faster |
+| `star_100000.txt` | 100,000 | 99,999 | 46.910 | 159.229 | $3.39\times$ faster |
+
+---
+
+### 9.4 Predicted vs. Measured Cost Synthesis & Figures
+
+* **Quadratic Oracle Blowup Confirmed:** Scaling $V$ by $5\times$ ($1,000 \to 5,000$) increased Oracle runtime from **1,171.380 ms** to **21,746.500 ms** ($18.56\times$) on `empty` graphs and from **100.394 ms** to **4,435.290 ms** ($44.18\times$) on `random` graphs, validating the $\mathcal{O}(V(V+E))$ model and the `oracleTooLarge` cutoff.
+* **Linear Scaling & Single-Pass Advantage Confirmed:** Both Structure A and Structure B scaled linearly across a $100\times$ increase in $V$ ($1,000 \to 100,000$) without recursion stack overflows. At $V \approx 100,000$, Structure A outperformed Structure B across **all 7 topologies** (mean **51.64 ms** vs. **123.10 ms**), confirming Prediction 3 that single-pass contiguous array access avoids Structure B's multi-pass DSU overhead.
+* **Generated Benchmark Figures (`benchmark/plot_results.py` → `docs/plots/`):**
+  1. `docs/plots/oracle_vs_structures_log.png` — Log-scale runtime comparison validating Oracle quadratic divergence against linear Structures A and B ($V = 1,000$ to $5,000$).
+  2. `docs/plots/scalability_comparison.png` — Mean execution time scaling across all 7 topologies from $V = 1,000$ to $V = 100,000$.
+  3. `docs/plots/topology_100k_comparison.png` — Grouped bar comparison across all 7 adversarial topologies at $V \approx 100,000$.
+```[cite: 6, 7, 8, 9, 10, 11, 13]
