@@ -100,7 +100,7 @@ This report presents the empirical performance evaluation, theoretical cost mode
 ## 6. Performance Gap & Architectural Synthesis
 
 ### 6.1 Theoretical vs. Empirical Alignment
-- **Oracle Engine ($\mathcal{O}((V+E)^2)$):** Scaling $V$ by $5\times$ (from $1,000$ to $5,000$) increased Oracle runtime from **1,171.38 ms** to **21,746.50 ms** ($18.56\times$) on `empty` graphs and from **100.39 ms** to **4,435.29 ms** ($44.18\times$) on `random` graphs, empirically confirming quadratic/cubic scaling and validating the $V > 5,000$ / $E > 50,000$ cutoff.
+- **Oracle Engine $\mathcal{O}((V+E)^2)$:** Scaling $V$ by $5\times$ (from $1,000$ to $5,000$) increased Oracle runtime from **1,171.38 ms** to **21,746.50 ms** ($18.56\times$) on `empty` graphs and from **100.39 ms** to **4,435.29 ms** ($44.18\times$) on `random` graphs, empirically confirming quadratic/cubic scaling and validating the $V > 5,000$ / $E > 50,000$ cutoff.
 - **Structures A & B ($\Theta(V+E)$ vs. $\mathcal{O}((V+E)\alpha(V))$):** Both structures scaled linearly across a $100\times$ increase in vertex count ($1,000 \to 100,000$), confirming that iterative DFS and path-compressed Union-Find eliminate recursion stack overflows and sustain sub-160 ms latency even at $V = 100,000$ and $E = 2.45 \times 10^6$.
 
 ### 6.2 Explaining the Performance Gap Across Topologies
