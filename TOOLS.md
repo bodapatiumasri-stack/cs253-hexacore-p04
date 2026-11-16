@@ -23,11 +23,9 @@ This file lists every AI tool or other significant tool used in this project, on
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Oracle implementation (10–15 Nov 2026) | `oracle/oracle.cpp`, `oracle/oracle.hpp` | Reviewed vertex removal, edge removal and component counting. |
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Interface design and integration (15–16 Nov 2026) | `oracle/oracle.hpp` | Reviewed function signatures, output format and comparison with Structure A and Structure B. |
 | Claude (Anthropic; model version not recorded) | Akshaya (250041021) | Testing and complexity review (16 Nov 2026) | `oracle/oracle_integration_test.cpp` | Reviewed edge cases and verified that 500 random stress-test graphs matched. |
-
 | ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Understanding Structure B, including iterative DFS, parent edges, back edges, ancestor relationships, bridge detection, and two-edge-connected components (Nov 2026) | None; used for conceptual learning and code walkthroughs | Read the explanations, traced the algorithm step by step, and worked through the DFS traversal and cycle-marking logic. |
 | ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Understanding and reviewing the Structure B implementation, including DSU, path compression, union by rank, top metadata, and complexity analysis (Nov 2026) | `src/structB/structB.cpp`, `src/structB/structB.hpp` | Discussed implementation decisions, examined the DSU-based path-marking approach, and revised the implementation. The final revised version was not compiled or tested by ChatGPT. |
 | ChatGPT (OpenAI; GPT-6) | Bodapati Uma Sri (250041009) | Preparing the D2 correctness and complexity derivation for Structure B, including why path marking identifies tree edges that lie on cycles (Nov 2026) | `docs/derivations/D2_250041009.pdf` | Used explanations and proof guidance to develop the correctness argument, refine the lemma statements, and understand the complexity analysis. |
-
 
 ## Representative Prompts
 
