@@ -1,6 +1,20 @@
-### Architect Module (D3) — Block-Cut Forest & Resilience Application
+# Project 04: Critical nodes and links in a network
+Team hexacore — CS 253 / MA 253, [Autumn 2026]
 
-#### 1. Overview & Role Responsibilities
+## Team and roles
+
+| Name | Roll no. | GitHub | Role | Module folder | Derivation |
+|------|----------|--------|------|---------------|------------|
+| Rishika Goyal | 250008029 | @che250008029-netizen | Structure A owner | src/structA/ | D1 |
+| Bodapati Uma Sri | 250041009 | @bodapatiumasri-stack | Structure B owner | src/structB/ | D2 |
+| Deepali Chauhan | 250041014 | @DeepaliChauhan07 | Architect | app/ | D3 |
+| Keetha Akshaya | 250041021 | @akshaya129 | Oracle owner | oracle/ | D4 |
+| Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
+| Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
+
+###3. Architect Module (D3) — Block-Cut Forest & Resilience Application
+
+#### 3.1. Overview & Role Responsibilities
 **Role:** Architect (Owner: D3)  
 **Primary Objective:** Design the system-wide module interfaces and implement the Block-Cut Forest construction, Lowest Common Ancestor (LCA) preprocessing, $O(\log n)$ vertex-failure connectivity queries, critical node impact ranking, and the end-to-end CLI application.
 
@@ -13,7 +27,7 @@
 
 ---
 
-#### 2. System Architecture & Data Pipeline
+#### 3.2. System Architecture & Data Pipeline
 
 The Architect module serves as the central orchestration layer connecting low-level graph decomposition with high-level fault-tolerance analytics:
 
@@ -25,7 +39,7 @@ The Architect module serves as the central orchestration layer connecting low-le
 
 ---
 
-#### 3. Core Algorithms & Implementation Details
+#### 3.3. Core Algorithms & Implementation Details
 
 ##### A. Block-Cut Forest Construction (`app/block_cut.cpp`)
 * **Bipartite Node Indexing**:
@@ -61,7 +75,7 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 
 ---
 
-#### 4. Complexity Analysis
+#### 3.4. Complexity Analysis
 
 | Function / Operation | Time Complexity | Space Complexity | Implementation Notes |
 | :--- | :--- | :--- | :--- |
@@ -72,35 +86,45 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 
 ---
 
-#### 5. Architectural Highlights & Compliance
+#### 3.5. Architectural Highlights & Compliance
 * **Strict Decoupling (`INTERFACE.md`)**: Separates graph decomposition (D1), independent DSU bridge detection (D2), BFS ground-truth verification (D4), and block-cut query processing (D3), enabling independent testing and clean integration.
 * **Disconnected Graph Support**: Explicitly tracks `component[u]` across all forest roots, handling multi-component graphs natively without dummy super-roots.
 * **Long-Path Resilience**: Iterative DFS in forest preprocessing satisfies the system testing rule against stack overflow on path-graph edge cases.
 
-### Structure A — Iterative Tarjan Decomposition (`src/structA/`)
+## 4. Structure A: Iterative Tarjan Low-Link Engine (`src/structA/`)
+**Owner:** Rishika Goyal (`250008029` / `@che250008029-netizen`)  
+**Derivation:** `docs/derivations/D1_250008029.pdf`
 
-#### 1. Key Design Decisions
-* **Unified Single-Pass Traversal:** Structure A computes articulation points, bridges, and edge-partitioned biconnected components in a single DFS traversal using discovery timestamps (`disc`), low-link values (`low`), and an auxiliary `edge_stack`.
-* **Iterative DFS (`DFSFrame`):** To eliminate recursion depth limits on deep topologies (such as $10^5$-vertex path graphs), recursion is replaced with an explicit heap-allocated `std::vector<DFSFrame>` state stack storing `(u, parent_edge_id, neighbor_idx)`.
-* **Multigraph & Edge-Case Handling:**
-  * **Parallel Edges:** Parent tree edges are matched by unique `edge_id` (`edge_id == p_edge`) rather than endpoint vertices, ensuring parallel edges act as valid back-edges that lower `low[u]` and form 2-edge BCCs.
-  * **Self-Loops:** Filtered immediately (`v == u`) so `edge_stack` and `low[u]` remain uncorrupted.
-  * **Isolated Vertices:** Zero-degree vertices explicitly emit an empty edge set (`{}`) into `biconnectedComponents` to maintain complete vertex coverage.
-* **Deterministic Sorting:** Output vectors (`articulationPoints`, `bridges`, and each BCC edge list) are sorted with `std::sort` to guarantee deterministic comparison against `Structure B` and `Oracle`.
+### 4.1. Design Overview & Algorithmic Changes
+Structure A implements a single-pass $O(V + E)$ Tarjan Depth-First Search engine (`analyzeStructureA`) that simultaneously computes:
+1. **Articulation Points (Cut Vertices):** Vertices whose removal increases the number of connected components.
+2. **Bridges (Cut Edges):** Edge IDs whose removal increases the number of connected components.
+3. **Biconnected Components (2-Vertex-Connected Edge Partitions):** Maximal biconnected subgraphs partitioned by edge IDs.
 
-#### 2. Predicted-Cost Model
-* **Time Complexity:**
-  * **Traversal & Stack Operations:** $O(V + E)$ — each vertex enters and exits `call_stack` once, and each non-loop edge is traversed twice and pushed/popped from `edge_stack` at most once.
-  * **Output Sorting:** $O(V \log V + E \log E)$ worst-case across articulation points, bridges, and BCC edge lists.
-  * **Overall:** $O(V + E \log E)$ worst-case ($O(V + E)$ linear traversal-dominated in practice).
-* **Space Complexity:** $O(V + E)$ auxiliary memory (`disc`, `low`, `is_ap`, and `call_stack` require $O(V)$; `edge_stack` and stored BCC edge partitions require $O(E)$).
+Key engineering modifications made in `src/structA/structA.hpp` and `src/structA/structA.cpp`:
+* **Iterative DFS Execution (`std::vector<DFSFrame>`):** Replaced standard recursive DFS with an explicit heap-allocated frame stack (`DFSFrame` storing vertex `u`, parent edge `parent_edge_id`, and neighbor iterator index `adj_idx`). On adversarial linear chains of size $V = 100{,}000$ (`adversary/path.cpp`), standard recursive DFS triggers a call-stack overflow on Windows/Linux default stack limits; the iterative implementation runs to completion in ~2.6 ms at $V = 10{,}000$ and scales linearly to $V = 100{,}000$.
+* **Multigraph Parallel-Edge Handling via `edge_id`:** Instead of tracking only parent vertex `p`, each traversal step tracks the incoming `parent_edge_id`. If an undirected multigraph contains two parallel edges $e_1, e_2$ between $u$ and $p$, traversing $e_1$ into $u$ treats $e_2$ ($e_2 \neq e_1$) as a valid back-edge updating $\text{low}[u] = \min(\text{low}[u], \text{disc}[p])$, preventing parallel edges from being misclassified as bridges.
+* **Self-Loop & Isolated-Vertex Edge-Case Safety:** Self-loops $(u, u)$ are handled cleanly without corrupting child counts or low-link propagation, and disconnected/isolated vertices ($d(u) = 0$) are skipped safely without generating spurious empty components.
+* **Canonical Output Ordering:** Articulation points, bridge edge IDs, and edge lists within each biconnected component are sorted and deduplicated prior to returning `StructureAResult`, guaranteeing deterministic equality checks against Structure B (`src/structB/`), the Block-Cut Forest (`app/block_cut.cpp`), and the brute-force Oracle (`oracle/oracle.cpp`).
 
-#### 3. Empirical Measurements & Adversarial Verification
-* **Scaling vs. Prediction:** Measured runtimes scale linearly with $V + E$ across path, cycle, star, and random multigraph inputs up to $N = 10^5$, closely matching the $O(V + E)$ predicted curve and matching `Structure B` within a small constant factor while avoiding the $O((V + E)^2)$ blowup of the brute-force Oracle.
-* **Adversarial Suite Results:** Passed 100% of differential checks against `Oracle` and `Structure B` across all adversarial graph classes (`path`, `cycle`, `xstar`, `cliques`, `random`, `disconnected`, and `empty`), confirming exact agreement on articulation points, bridges, and BCC edge partitions[cite: 1].
+### 4.2. Complexity & Correctness Summary
+* **Time Complexity:** $O(V + E)$ for graph traversal and low-link updates, plus $O(V \log V + E \log E)$ for canonical sorting of output vectors.
+* **Space Complexity:** $O(V + E)$ auxiliary memory for `disc`, `low`, `visited`, the explicit `DFSFrame` stack, and the biconnected edge stack.
+* **Verification Status:** Passed 10/10 handcrafted edge-case topologies (paths, cycles, stars, disconnected/isolated vertices, parallel edges, self-loops), 500/500 randomized differential stress tests against Structure B and the Oracle, and invariants `A1–A5` in `oracle/invariants_check.cpp`.
+
+### 4.3. Resources & References
+* **Algorithmic Foundations:**
+  * R. E. Tarjan (1972), *"Depth-First Search and Linear Graph Algorithms"*, SIAM Journal on Computing, 1(2), 146–160. (Foundation for discovery times $\text{disc}[u]$, low-link values $\text{low}[u]$, and biconnected component edge-stack extraction).
+  * T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein, *Introduction to Algorithms (CLRS)*, 4th ed., Chapter 20 (Elementary Graph Algorithms — DFS edge classification and biconnected components).
+  * CP-Algorithms, *"Finding Bridges in a Graph in $O(N+M)$"* and *"Finding Articulation Points in a Graph in $O(N+M)$"* (reference edge-ID formulation for multigraphs).
+* **Repository Artifacts & Deliverables:**
+  * Source Implementation: `src/structA/structA.hpp`, `src/structA/structA.cpp`
+  * Mathematical Proof: `docs/derivations/D1_250008029.pdf`
+  * Differential & Invariant Tests: `oracle/oracle_integration_test.cpp`, `oracle/invariants_check.cpp`
+  * Benchmark Data & Scaling Plots: `results/results.csv`, `docs/plots/oracle_vs_structures_log.png`, `docs/plots/scalability_comparison.png`, `docs/plots/topology_100k_comparison.png`
 ## 5. Structure B
 
-**Purpose.** Structure B finds all bridges of the graph by a different method from Structure A. It builds a DFS tree, then uses path marking with union-find to mark every tree edge that lies on a cycle. The unmarked tree edges are the bridges. It also lists the 2-edge-connected components (the pieces left after removing the bridges). The proof of correctness and of the running time is in my derivation D2 (`docs/derivations/D2_mc250041009.pdf`).
+**Purpose.** Structure B finds all bridges of the graph by a different method from Structure A. It builds a DFS tree, then uses path marking with union-find to mark every tree edge that lies on a cycle. The unmarked tree edges are the bridges. It also lists the 2-edge-connected components (the pieces left after removing the bridges). The proof of correctness and of the running time is in my derivation D2 (`docs/derivations/D2_250041009.pdf`).
 
 ### 5.1 Representation
 
@@ -129,8 +153,7 @@ Total space is O(V+E).
 | `findTwoEdgeConnectedComponents` | BFS that does not cross bridges; sorts each component and the list of components | O(V+E) + O(V log V) for sorting |
 | `computeStructureB` (whole) | calls the above in order | O((V+E) α(V) + V log V) |
 
-The two sorts only fix the output order so that it can be compared with Structure A and the oracle. The core of Structure B (finding the bridges) is O((V+E) α(V)). [If INTERFACE.md lists other operations for Structure B, add each one here with its exact name and cost.]
-
+The two sorts only fix the output order so that it can be compared with Structure A and the oracle. The core of Structure B (finding the bridges) is O((V+E) α(V)). 
 ### 5.3 Invariants it maintains
 
 1. **No cross edges.** Every non-tree edge joins a vertex to one of its ancestors (D2, Lemma 1). `findBackEdges` relies on this, because it only tests the two ancestor directions.
@@ -152,73 +175,111 @@ The two sorts only fix the output order so that it can be compared with Structur
 
 ### 5.5 Links
 
-Derivation: D2 (`docs/derivations/D2_mc250041009.pdf`). Code: `structB.cpp`. Main commits / pull requests:
-commits-
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/f13237654d770ba8d73581227bac90415bb2ad45
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/8556e74e079fe336323d5444975bce30b9be1c6a
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/f89e9a96177c8f0fb126e6e9dc7f0e2244990c6f
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/7ef8033f728ddf841726ecef6c6b7bf17badc644
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/2c1b118c5426866405907c7254a8c03b235b12c1
+Derivation: D2 (`docs/derivations/D2_250041009.pdf`). Code: `structB.cpp`. Main pull requests:
 pull requests-
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/7
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/14
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
-. Reading-list item and how my code differs from the paper: see Section 6.
 
-## Structure D — Oracle Module
 
-### 1. Objective
+## Oracle module(D4)
+## 7. Correctness
 
-The Oracle module verifies the correctness of Structure A and Structure B using a brute-force BFS approach. It identifies articulation points and bridges by checking the number of connected components after removing individual vertices and edges.
+### 7.1 The oracle and why it is correct
 
-### 2. Working and Main Functions
+The oracle is a brute-force checker. It uses no clever algorithm. It applies the definitions directly: remove one vertex or one edge, count the connected components again with BFS, and compare with the original count c0. It does not use Structure A or Structure B, and it uses no DFS, low-link values or union-find.
 
-The Oracle first calculates the original number of connected components. It then removes each vertex and edge individually and performs BFS to check whether the component count increases.
+Interface (from `oracle/oracle.hpp`, using the team's `graph.hpp`, where `Graph` has `n`, `m`, `edges` and `adj`):
 
-| Function | Description |
+- `int countComponents(const AdjList& adj, int n, int removedVertex = -1, int removedEdge = -1)` returns the number of components. A removed vertex is not counted as a component.
+- `OracleResult runOracle(const Graph& g)` returns the original component count, the count after every vertex and every edge removal, the articulation points and the bridge ids, all sorted.
+- `oracleArticulationPoints(g)`, `oracleBridges(g)` and `oracleTooLarge(g)` are helpers used by the Analyst's `benchmark_runner.cpp`.
+
+Why `countComponents` is correct: a BFS started at a vertex visits exactly the vertices reachable from it (it never marks a vertex without a path from the start, and it never misses a vertex that has one). A new BFS starts only at an unvisited vertex, so every component is counted exactly once. The removed vertex is never entered, and the removed edge is skipped by its id (not by its endpoints), so parallel edges stay separate. A self-loop only leads back to a vertex that is already visited, so it never changes the count.
+
+Why the test is correct: an edge is reported when the new count is greater than c0. Removing an edge splits its component into at most two pieces, so the count rises exactly when the edge is a bridge. Removing a vertex leaves c0 - 1 + k pieces, where k is the number of pieces its component breaks into, so the count rises exactly when k >= 2, which is the definition of an articulation point. Comparing with c0 and not with 1 keeps disconnected graphs correct. How this definition relates to the low-link criterion used by Structure A (a tree edge (u, v) is a bridge exactly when low(v) > disc(u)) is proved in `docs/derivations/D4_250041021.pdf`.
+
+Cost: one count is O(n + m). Bridges need m counts and articulation points need n counts, so the oracle is about O((n + m)^2). It is only run up to 5000 vertices and 25000 edges; `oracleTooLarge` skips larger inputs. The 5000 comes from the project description and the 25000 is a team choice. The check applies only to the oracle report and never stops Structure A, Structure B or the application from running on the full graph.
+
+### 7.2 Differential test
+
+`oracle/oracle_integration_test.cpp` runs Structure A, Structure B and the oracle on the same graphs and compares the sorted lists. In this project an "operation" is one graph on which all methods are compared, because the input is a static graph.
+
+| Item | Value |
 |---|---|
-| `countComponents()` | Counts connected components using BFS while ignoring a selected vertex or edge. |
-| `oracleArticulationPoints()` | Identifies vertices whose removal increases the component count. |
-| `oracleBridges()` | Identifies edges whose removal increases the component count. |
-| `runOracle()` | Performs all checks and stores the results. |
-| `compareResults()` | Compares Oracle results with Structure A and Structure B and reports MATCH or MISMATCH. |
+| Operations compared | Structure A articulation points vs oracle; Structure A bridges vs oracle; Structure B bridges vs oracle |
+| Named graphs (8) | path, cycle, star, disconnected graph with an isolated vertex, single vertex, triangle with a tail, two triangles joined by a path, star whose centre is not vertex 1 |
+| Random graphs | 500 simple graphs (no self-loops or parallel edges), 1 to 25 vertices, up to 40 edges |
+| Seed | 12345 (`std::mt19937`, fixed, so failures are reproducible) |
+| Long input | A path with 200000 vertices, run on A and B only (the oracle is skipped above 5000 vertices); both must report n - 1 bridges. This checks that the DFS is iterative |
+| Result | 500/500 random graphs matched; all 8 named graphs matched; long path passed; `ALL TESTS PASSED (failures: 0)` |
 
-### 3. Complexity Analysis
+Reproduce:
 
-| Function | Time Complexity |
+    g++ -std=c++17 -Wall -Wextra -I. oracle/oracle.cpp oracle/oracle_integration_test.cpp src/structA/structA.cpp src/structB/structB.cpp -o oracle_integration
+    oracle_integration.exe
+
+The oracle's own test, `oracle/oracle_test.cpp`, has 16 test groups with hand-computed answers (single vertex, path, cycle, star, disconnected graphs, isolated vertices, K4, several articulation points and bridges, parallel edges, self-loops, exact count arrays, the size guard and `compareResults`). All passed.
+
+A second comparison was run with the Adversary's checker `adversary_check.cpp`, compiled with `-DUSE_TEAM_ORACLE`. It compares Structure A, Structure B and `runOracle` with a second brute-force function inside the checker. Eight graphs from the Adversary's generators returned `RESULT: ALL OK`: `path 5`, `path 10`, `cycle 10`, `star 10`, `empty 5`, `disconnected 10`, `cliques 3 4` and `random 50 80 1`.
+
+### 7.3 Invariant checkers
+
+The invariant checkers are in `oracle/invariants_check.cpp`, a separate program in the oracle folder. It does not compute the answer again. It reads a graph, runs Structure A and Structure B, and checks facts about their results that must always be true. These are structural checks on the outputs, so they do not depend on the oracle's answers.
+
+| Check | What it tests |
 |---|---|
-| `countComponents()` | O(V + E) |
-| `oracleArticulationPoints()` | O(V(V + E)) |
-| `oracleBridges()` | O(E(V + E)) |
-| `runOracle()` | O((V + E)^2) |
+| I0 | the input is a simple graph (no self-loop, no parallel edge, endpoints in 1..n) |
+| A1 | A's articulation points and bridges are sorted, without duplicates, and in range |
+| A2 | the blocks partition the edges: every edge is in exactly one block, no block is empty |
+| A3 | a block has one edge (and then it is a bridge) or at least three; no bridge lies in a larger block |
+| A4 | a vertex is an articulation point exactly when it belongs to at least two blocks |
+| A5 | every block is connected |
+| B1 | B's bridges are sorted, without duplicates, and in range |
+| B2 | B's components partition the vertices 1..n |
+| B3 | a bridge joins two different components and every other edge stays inside one |
+| B4 | the number of B's components equals the number of pieces left after removing the bridges |
+| AB | Structure A and Structure B report the same bridges |
 
-Auxiliary Space Complexity: O(V + E).
+Build and use:
 
-### 4. Testing
+    g++ -O2 -std=c++14 oracle/invariants_check.cpp src/structA/structA.cpp src/structB/structB.cpp -I. -o inv
+    gen.exe 5 | inv.exe
 
-The Oracle was tested using different graph structures to verify its correctness.
+The checker prints one line per invariant group and a last line `ALL INVARIANTS OK` or `INVARIANT VIOLATED`. It was added to the repository after the differential test above and has not yet been run on the final code.
 
-| Test Case | Purpose |
-|---|---|
-| Path | Tests articulation points and bridges. |
-| Cycle | Tests a connected cycle. |
-| Star | Tests the central articulation point. |
-| Disconnected graph | Tests multiple components. |
-| Complete graph | Tests high connectivity. |
-| Isolated vertices | Tests vertices without edges. |
-| Parallel edges | Tests multiple edges between vertices. |
-| Self-loops | Tests self-loop handling. |
+### 7.4 Bug log
 
-### 5. Limitations
+| # | Date | Module | Symptom | How it was found | Fixed in commit |
+|---|---|---|---|---|---|
+| 1 | 2026-11-15 | oracle/ (folder layout) | The Oracle files sat in `src/oracle/`, but the team repo keeps them in `oracle/`. After the move, the includes in the integration test no longer resolved. | Compiler error and `git diff` against `origin/main` | `bc7d455`, `9255595` |
+| 2 | 2026-11-15 | oracle/oracle.hpp, oracle/oracle.cpp | The oracle was written for the interface text, where `Graph` is a plain adjacency list. The final `graph.hpp` makes `Graph` a struct (`n`, `m`, `edges`, `adj`), so the code did not match it. | Compiler error against the final `graph.hpp` | `9dd7c35`, `ffbc4c5`, `eb911c9` |
+| 3 | 2026-11-16 | oracle/oracle_test.cpp | `fatal error: graph.hpp: No such file or directory`. The test included `graph.hpp` as if it were in the same folder, but it is in the repo root. | Compiler error when building the oracle test | `3b111f1` |
+| 4 | 2026-11-16 | oracle/oracle_integration_test.cpp | `'struct Graph' has no member named 'assign'` and `no match for operator[]`. The old test treated `Graph` as a vector and called functions that no longer exist. | Compiler error when running the integration test against Structure A and B | `c3513e7` |
+| 5 | 2026-11-16 | oracle/ (git history) | Merge commit `8490188` deleted `oracle_integration_test.cpp` by mistake. A `git rm` was still staged when `git add oracle` ran. | `git show --stat HEAD` showed "1 file changed, 135 deletions" | `527e4a5` (revert) |
+| Date | Module | Symptom | How found | Fix |
+|---|---|---|---|---|
+| 15 Nov | `graph.hpp` | `main` did not build: `graph.hpp` was not in `main` yet, and Structure A included `../common/graph.hpp`, which did not exist | compiling Structure A, Structure B and the oracle together | `graph.hpp` added by the Architect (commit `5c8b146`, latest update `9113694`) |
+| 15 Nov | Structure A | Used the old type name `GraphData` and a different include path from the final `Graph` header | the same build attempt | PR #25 (`structA.hpp`) and PR #26 (`structA.cpp`) |
+| 15 Nov | Structure B | Included `graph.hpp` from a different path than Structure A, and `computeStructureB` had a different signature | the same build attempt | commits `4e91d3f` and `f89e9a9` (include path), PR #28 (inline overload) |
+| 15 Nov | Oracle | `oracle.hpp` defined its own `Graph` alias, which clashes with the shared `struct Graph` | reading `oracle.hpp` while building | fixed by the Oracle owner (PR #31) |
+| 16 Nov | `adversary/path.cpp` | No check for a missing command-line argument, unlike the other six generators | reading the source code | not fixed; see Limitations (section 8.4) |
 
-Since the Oracle uses repeated BFS, its execution becomes expensive for large graphs. Therefore, `oracleTooLarge()` skips execution when the number of vertices exceeds 5,000 or the number of edges exceeds 25,000.
+The oracle found no wrong-answer bug in Structure A or Structure B. They agreed with it on every graph tested, so the entries above are build and integration bugs.
 
-The Oracle is mainly intended for verifying smaller test graphs, while the efficient algorithms handle larger inputs.
+Two mismatches were found in other modules while integrating. Neither changed any result:
 
-### 6. Conclusion
+- The draft of INTERFACE.md declared `struct OracleResult ( ... );` with round brackets. It has to be written with braces, as in `oracle/oracle.hpp`.
+- `Graph::addEdge(u, u)` in `graph.hpp` pushes a self-loop twice into `adj[u]`, while INTERFACE.md says a self-loop is stored once. The oracle's BFS ignores a loop, and Structure A skips loops, so no result was affected.
 
-The Oracle provides an independent correctness-checking mechanism for the project. By comparing its BFS-based results with Structure A and Structure B, it helps detect errors and improves the reliability of the overall implementation.
+### 7.5 Limitations
+
+- The differential test compares one run of 500 random graphs and 8 named graphs. The 10^5 and 10^6 seeded operations named in the project document were not reached, and failing cases are not shrunk to a minimal one.
+- The oracle checks graphs of at most 5000 vertices, so full-scale inputs (10^5 vertices, 10^6 edges) are checked only by comparing Structure A with Structure B.
+- The invariant checkers accept only simple graphs (check I0) and have not yet been run on the final code.
+- The 25000 edge limit is a team choice, not confirmed by the instructor.
+- I did not measure the oracle's running time; the Analyst covers measurements.
 
 ## 8. Adversarial Inputs
 
@@ -242,7 +303,7 @@ For large-input generation, `cliques 100 142` creates 14,101 vertices and 1,001,
 
 An undirected DFS has no cross edges. Every non-tree edge connects a vertex to one of its ancestors, which is why low-link values can capture the back edges needed to identify articulation points and bridges.
 
-The DFS root needs a separate rule because it has no parent. It is an articulation point only if it has at least two DFS-tree children.
+The DFS root needs a separate rule because it has no ancestor above it, so the normal test low(c) ≥ disc(root) is always true for its children. It is an articulation point only if it has at least two DFS-tree children.
 
 A program that incorrectly applies the normal non-root test to the root may report a false articulation point on `path` and `cycle` (bug A). A program that skips the root entirely may fail to identify the articulation point in `star` (bug B).
 
@@ -267,6 +328,7 @@ The complete proof is provided in `docs/derivations/D5_250041015.pdf`.
 - The `random` generator accepts at most m = n(n−1)/4 edges to keep generation manageable.
 - There is no generator for self-loops or parallel edges because they are outside the agreed input format.
 - I did not take timing measurements. Performance measurements are covered by the Analyst.
+- The `path` generator does not check for a missing command-line argument (the other six generators do), so `./path` without a number fails instead of printing a usage message.
 
 ## 9. Analyst — Predicted Cost Model & Empirical Benchmarking
 

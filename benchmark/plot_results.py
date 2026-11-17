@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-csv_path = os.path.join(script_dir, "results.csv")
+csv_path = os.path.join(script_dir,"..", "results", "results.csv")
 
 df = pd.read_csv(csv_path)
 

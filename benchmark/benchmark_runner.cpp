@@ -54,15 +54,15 @@ int main(int argc, char* argv[]) {
     if (g.n <= 0) return 1;
 
     
-    std::ifstream check_csv("benchmark/results.csv");
+    std::ifstream check_csv("results/results.csv");
     bool write_header = !check_csv.good() || check_csv.peek() == std::ifstream::traits_type::eof();
     check_csv.close();
 
-    std::ofstream csv_out("benchmark/results.csv", std::ios::app);
+    std::ofstream csv_out("results/results.csv", std::ios::app);
     if (write_header) {
         csv_out << "Graph_Path,V,E,StructA_ms,StructB_ms,Oracle_ms,Verified\n";
     }
--
+
     auto start_A = std::chrono::high_resolution_clock::now();
     StructureAResult resA = analyzeStructureA(g, g.n);
     auto end_A = std::chrono::high_resolution_clock::now();
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     auto end_B = std::chrono::high_resolution_clock::now();
     double time_B = std::chrono::duration<double, std::milli>(end_B - start_B).count();
 
-    /
+
     double time_Oracle = -1.0;
     std::string verified = "SKIPPED";
 
