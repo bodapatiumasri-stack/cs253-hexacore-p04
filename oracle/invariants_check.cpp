@@ -1,13 +1,3 @@
-// invariants_check.cpp - structural invariant checkers for Structure A and Structure B
-//
-// What is an invariant checker? It does NOT compute the answer again. It looks at the RESULT of A or B
-// and checks facts that must always be true about a correct result.
-//
-// Usage:   ./gen.exe 5 | ./inv.exe          (prints one line per invariant)
-//          ./gen.exe 5 | ./inv.exe q         (prints only the final line)
-//
-// Build (from the repository root):
-//   g++ -O2 -std=c++14 invariants_check.cpp src/structA/structA.cpp src/structB/structB.cpp -I. -o inv
 #include "src/structA/structA.hpp"
 #include "src/structB/structB.hpp"
 #include <algorithm>
@@ -17,7 +7,6 @@
 #include <vector>
 using namespace std;
 
-// ---------- small helpers ----------
 static bool fail(string& why, const string& msg) { why = msg; return false; }
 
 static bool sortedUnique(const vector<int>& v) {
@@ -25,14 +14,12 @@ static bool sortedUnique(const vector<int>& v) {
     return true;
 }
 
-struct DSU {                                   // union-find, used only inside the checkers
+struct DSU {                                
     vector<int> p;
     explicit DSU(int n) : p(n + 1) { for (int i = 0; i <= n; i++) p[i] = i; }
     int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }
     bool unite(int a, int b) { a = find(a); b = find(b); if (a == b) return false; p[a] = b; return true; }
 };
-
-// ---------- I0: the input must be a simple graph (the agreed input format) ----------
 bool checkInputIsSimple(const Graph& g, string& why) {
     set<pair<int,int> > seen;
     for (int id = 0; id < g.m; id++) {
@@ -45,9 +32,8 @@ bool checkInputIsSimple(const Graph& g, string& why) {
     return true;
 }
 
-// ---------- Structure A: articulation points, bridges, biconnected blocks (blocks are lists of edge IDs) ----------
 bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string& why) {
-    // A1: lists are sorted, without duplicates, and inside the valid range
+  
     if (!sortedUnique(A.articulationPoints)) return fail(why, "A1: articulation points are not sorted/unique");
     for (size_t i = 0; i < A.articulationPoints.size(); i++)
         if (A.articulationPoints[i] < 1 || A.articulationPoints[i] > g.n) return fail(why, "A1: articulation point outside 1..n");
@@ -55,7 +41,6 @@ bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string
     for (size_t i = 0; i < A.bridges.size(); i++)
         if (A.bridges[i] < 0 || A.bridges[i] >= g.m) return fail(why, "A1: bridge edge ID outside 0..m-1");
 
-    // A2: the blocks partition the edges: every edge is in exactly one block
     vector<int> blockOf(g.m, -1);
     for (size_t b = 0; b < A.biconnectedComponents.size(); b++) {
         const vector<int>& blk = A.biconnectedComponents[b];
@@ -69,9 +54,7 @@ bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string
     }
     for (int id = 0; id < g.m; id++)
         if (blockOf[id] == -1) return fail(why, "A2: an edge is in no block");
-
-    // A3: a block has 1 edge (a bridge) or at least 3 edges (a simple graph has no 2-edge block);
-    //     bridges are exactly the one-edge blocks
+    
     vector<bool> isBridge(g.m, false);
     for (size_t i = 0; i < A.bridges.size(); i++) isBridge[A.bridges[i]] = true;
     for (size_t b = 0; b < A.biconnectedComponents.size(); b++) {
@@ -84,7 +67,6 @@ bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string
         }
     }
 
-    // A4: a vertex is an articulation point exactly when it belongs to at least 2 blocks
     vector<int> blocksOfVertex(g.n + 1, 0), lastBlock(g.n + 1, -1);
     for (size_t b = 0; b < A.biconnectedComponents.size(); b++)
         for (size_t k = 0; k < A.biconnectedComponents[b].size(); k++) {
@@ -98,7 +80,6 @@ bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string
     for (int v = 1; v <= g.n; v++)
         if ((blocksOfVertex[v] >= 2) != isAP[v]) return fail(why, "A4: articulation points differ from 'vertices in at least 2 blocks' (vertex " + to_string(v) + ")");
 
-    // A5: every block is connected (its edges form one connected piece)
     vector<int> local(g.n + 1, -1);
     for (size_t b = 0; b < A.biconnectedComponents.size(); b++) {
         const vector<int>& blk = A.biconnectedComponents[b];
@@ -117,9 +98,8 @@ bool checkStructureAInvariants(const Graph& g, const StructureAResult& A, string
     return true;
 }
 
-// ---------- Structure B: bridges and two-edge-connected components (lists of vertices) ----------
 bool checkStructureBInvariants(const Graph& g, const StructureBResult& B, string& why) {
-    // B1: bridges sorted, unique, in range
+
     if (!sortedUnique(B.bridges)) return fail(why, "B1: bridges are not sorted/unique");
     vector<bool> isBridge(g.m, false);
     for (size_t i = 0; i < B.bridges.size(); i++) {
@@ -127,7 +107,7 @@ bool checkStructureBInvariants(const Graph& g, const StructureBResult& B, string
         isBridge[B.bridges[i]] = true;
     }
 
-    // B2: the components partition the vertices 1..n; each list is sorted; lists are sorted by first vertex
+
     vector<int> compOf(g.n + 1, -1);
     for (size_t c = 0; c < B.twoEdgeConnectedComponents.size(); c++) {
         const vector<int>& comp = B.twoEdgeConnectedComponents[c];
@@ -144,14 +124,12 @@ bool checkStructureBInvariants(const Graph& g, const StructureBResult& B, string
     for (int v = 1; v <= g.n; v++)
         if (compOf[v] == -1) return fail(why, "B2: a vertex is in no component");
 
-    // B3: a bridge joins two different components; every other edge stays inside one component
     for (int id = 0; id < g.m; id++) {
         int cu = compOf[g.edges[id].first], cv = compOf[g.edges[id].second];
         if (isBridge[id] && cu == cv) return fail(why, "B3: a bridge lies inside one component");
         if (!isBridge[id] && cu != cv) return fail(why, "B3: a non-bridge edge joins two components");
     }
 
-    // B4: the components are exactly the pieces left after removing all bridges
     DSU d(g.n);
     for (int id = 0; id < g.m; id++) if (!isBridge[id]) d.unite(g.edges[id].first, g.edges[id].second);
     int pieces = 0;
@@ -160,13 +138,11 @@ bool checkStructureBInvariants(const Graph& g, const StructureBResult& B, string
     return true;
 }
 
-// ---------- A and B together ----------
 bool checkAandBAgree(const StructureAResult& A, const StructureBResult& B, string& why) {
     if (A.bridges != B.bridges) return fail(why, "AB: Structure A and Structure B report different bridges");
     return true;
 }
 
-// ---------- reading the agreed graph format: "n m", then m lines "u v" ----------
 static Graph readGraphForCheck(istream& in) {
     int n = 0, m = 0;
     in >> n >> m;
