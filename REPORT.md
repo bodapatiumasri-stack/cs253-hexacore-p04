@@ -209,7 +209,7 @@ Since the Oracle uses repeated BFS, its execution becomes expensive for large gr
 
 The Oracle is mainly intended for verifying smaller test graphs, while the efficient algorithms handle larger inputs.
 ### 7.6 links
-Derivation: D4 (docs/derivations/D4_250041021.pdf). Code: oracle.cpp. Main pull requests: pull requests- #4#16#49
+Derivation: D4 (docs/derivations/D4_250041021.pdf). Code: oracle.cpp. Main pull requests: pull requests- #4 #23 #33
 
 ### 7.7 Conclusion
 
