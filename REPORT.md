@@ -157,7 +157,7 @@ https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/7
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/14
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
-. Reading-list item and how my code differs from the paper: see Section 6.
+
 
 ## Structure D — Oracle Module
 
