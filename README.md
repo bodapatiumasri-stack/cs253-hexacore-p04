@@ -38,4 +38,57 @@ for gen in ./gen_path ./gen_cycle ./gen_star ./gen_cliques ./gen_disconnected ./
   ./benchmark_runner /tmp/bench_graph.txt; \
 done
 ```
+### Two triangles joined by a path
+========== ORACLE RESULTS ==========
 
+Original components: 1
+
+Articulation Points:
+3 4 5
+
+Bridges (Edge IDs):
+3 4
+
+========== VERIFICATION ==========
+
+Structure A - Articulation Points: MATCH
+Structure A - Bridges: MATCH
+Structure B - Bridges: MATCH
+
+===================================
+
+### Parallel edges
+========== ORACLE RESULTS ==========
+
+Original components: 1
+
+Articulation Points:
+2
+
+Bridges (Edge IDs):
+2
+
+========== VERIFICATION ==========
+
+Structure A - Articulation Points: MATCH
+Structure A - Bridges: MATCH
+Structure B - Bridges: MATCH
+
+===================================
+## Benchmarks and figures
+
+Before rerunning the full benchmark suite, remove or clear any previous `results/results.csv` so appended rows are not duplicated:
+
+```bash
+# 1. Compile the benchmark and cross-verification harness
+g++ -std=c++11 -O2 benchmark/benchmark_runner.cpp src/structA/*.cpp src/structB/*.cpp oracle/*.cpp -o benchmark/runner
+
+# 2. Run all 35 adversarial datasets (writes results/results.csv)
+rm -f results/results.csv
+for f in adversary/*.txt; do
+    ./benchmark/runner "$f"
+done
+
+# 3. Regenerate all 3 performance figures (writes docs/plots/*.png)
+python benchmark/plot_results.py
+```
