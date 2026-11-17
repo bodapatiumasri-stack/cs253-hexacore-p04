@@ -91,6 +91,12 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 * **Disconnected Graph Support**: Explicitly tracks `component[u]` across all forest roots, handling multi-component graphs natively without dummy super-roots.
 * **Long-Path Resilience**: Iterative DFS in forest preprocessing satisfies the system testing rule against stack overflow on path-graph edge cases.
 
+---
+
+#### 3.6. Resources
+* ** F. Harary, Graph Theory, Addison-Wesley, 1969, Chapter 3 (Blocks and the Block-Cutpoint Tree).
+* ** R. E. Tarjan, “Depth-First Search and Linear Graph Algorithms,” SIAM Journal on Computing, Vol. 1, No. 2, pp. 146–160, 1972.
+
 ## 4. Structure A: Iterative Tarjan Low-Link Engine (`src/structA/`)
 **Owner:** Rishika Goyal (`250008029` / `@che250008029-netizen`)  
 **Derivation:** `docs/derivations/D1_250008029.pdf`
