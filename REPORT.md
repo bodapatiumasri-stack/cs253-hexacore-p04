@@ -411,4 +411,17 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
   1. `docs/plots/oracle_vs_structures_log.png` — Log-scale runtime comparison validating Oracle quadratic divergence against linear Structures A and B ($V = 1,000$ to $5,000$).
   2. `docs/plots/scalability_comparison.png` — Mean execution time scaling across all 7 topologies from $V = 1,000$ to $V = 100,000$.
   3. `docs/plots/topology_100k_comparison.png` — Grouped bar comparison across all 7 adversarial topologies at $V \approx 100,000$.
+## 13. References
+
+**Papers and books**
+
+1. R. E. Tarjan, "Depth-first search and linear graph algorithms," *SIAM Journal on Computing* 1(2):146–160, 1972.
+2. J. Hopcroft and R. E. Tarjan, "Algorithm 447: Efficient algorithms for graph manipulation," *Communications of the ACM* 16(6):372–378, 1973.
+3. R. E. Tarjan, "A note on finding the bridges of a graph," *Information Processing Letters* 2(6):160–161, 1974.
+4. R. E. Tarjan, "Efficiency of a good but not linear set union algorithm," *Journal of the ACM* 22(2):215–225, 1975. (Used for the O(m α(V)) bound of union by rank with path compression in Structure B.)
+
+**Tools**
+
+- AI assistant: [Claude,ChatGPT,Gemini AI]. Details and representative prompts are in `TOOLS.md`.
+- LaTeX on Overleaf, for the derivations.
 
