@@ -103,33 +103,102 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 **Owner:** Rishika Goyal (`250008029` / `@che250008029-netizen`)  
 **Derivation:** `docs/derivations/D1_250008029.pdf`
 
-### 4.1. Design Overview & Algorithmic Changes
-Structure A implements a single-pass $O(V + E)$ Tarjan Depth-First Search engine (`analyzeStructureA`) that simultaneously computes:
-1. **Articulation Points (Cut Vertices):** Vertices whose removal increases the number of connected components.
-2. **Bridges (Cut Edges):** Edge IDs whose removal increases the number of connected components.
-3. **Biconnected Components (2-Vertex-Connected Edge Partitions):** Maximal biconnected subgraphs partitioned by edge IDs.
+## 4. Structure A — Iterative Tarjan Low-Link Engine
 
-Key engineering modifications made in `src/structA/structA.hpp` and `src/structA/structA.cpp`:
-* **Iterative DFS Execution (`std::vector<DFSFrame>`):** Replaced standard recursive DFS with an explicit heap-allocated frame stack (`DFSFrame` storing vertex `u`, parent edge `parent_edge_id`, and neighbor iterator index `adj_idx`). On adversarial linear chains of size $V = 100{,}000$ (`adversary/path.cpp`), standard recursive DFS triggers a call-stack overflow on Windows/Linux default stack limits; the iterative implementation runs to completion in ~2.6 ms at $V = 10{,}000$ and scales linearly to $V = 100{,}000$.
-* **Multigraph Parallel-Edge Handling via `edge_id`:** Instead of tracking only parent vertex `p`, each traversal step tracks the incoming `parent_edge_id`. If an undirected multigraph contains two parallel edges $e_1, e_2$ between $u$ and $p$, traversing $e_1$ into $u$ treats $e_2$ ($e_2 \neq e_1$) as a valid back-edge updating $\text{low}[u] = \min(\text{low}[u], \text{disc}[p])$, preventing parallel edges from being misclassified as bridges.
-* **Self-Loop & Isolated-Vertex Edge-Case Safety:** Self-loops $(u, u)$ are handled cleanly without corrupting child counts or low-link propagation, and disconnected/isolated vertices ($d(u) = 0$) are skipped safely without generating spurious empty components.
-* **Canonical Output Ordering:** Articulation points, bridge edge IDs, and edge lists within each biconnected component are sorted and deduplicated prior to returning `StructureAResult`, guaranteeing deterministic equality checks against Structure B (`src/structB/`), the Block-Cut Forest (`app/block_cut.cpp`), and the brute-force Oracle (`oracle/oracle.cpp`).
+**Role:** Structure A Owner (D1 — Rishika Goyal, `250008029` / `@che250008029-netizen`)  
+**Derivation:** `docs/derivations/D1_250008029.pdf`  
+**Owned Files:** `src/structA/structA.hpp`, `src/structA/structA.cpp`
 
-### 4.2. Complexity & Correctness Summary
-* **Time Complexity:** $O(V + E)$ for graph traversal and low-link updates, plus $O(V \log V + E \log E)$ for canonical sorting of output vectors.
-* **Space Complexity:** $O(V + E)$ auxiliary memory for `disc`, `low`, `visited`, the explicit `DFSFrame` stack, and the biconnected edge stack.
-* **Verification Status:** Passed 10/10 handcrafted edge-case topologies (paths, cycles, stars, disconnected/isolated vertices, parallel edges, self-loops), 500/500 randomized differential stress tests against Structure B and the Oracle, and invariants `A1–A5` in `oracle/invariants_check.cpp`.
+---
 
-### 4.3. Resources & References
-* **Algorithmic Foundations:**
-  * R. E. Tarjan (1972), *"Depth-First Search and Linear Graph Algorithms"*, SIAM Journal on Computing, 1(2), 146–160. (Foundation for discovery times $\text{disc}[u]$, low-link values $\text{low}[u]$, and biconnected component edge-stack extraction).
-  * T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein, *Introduction to Algorithms (CLRS)*, 4th ed., Chapter 20 (Elementary Graph Algorithms — DFS edge classification and biconnected components).
-  * CP-Algorithms, *"Finding Bridges in a Graph in $O(N+M)$"* and *"Finding Articulation Points in a Graph in $O(N+M)$"* (reference edge-ID formulation for multigraphs).
-* **Repository Artifacts & Deliverables:**
-  * Source Implementation: `src/structA/structA.hpp`, `src/structA/structA.cpp`
-  * Mathematical Proof: `docs/derivations/D1_250008029.pdf`
-  * Differential & Invariant Tests: `oracle/oracle_integration_test.cpp`, `oracle/invariants_check.cpp`
-  * Benchmark Data & Scaling Plots: `results/results.csv`, `docs/plots/oracle_vs_structures_log.png`, `docs/plots/scalability_comparison.png`, `docs/plots/topology_100k_comparison.png`
+### 4.1 Purpose & Mathematical Overview
+
+Structure A computes the complete 2-connectivity decomposition of an undirected multigraph $G = (V, E)$ in a single $\mathcal{O}(V + E)$ Depth-First Search pass:
+1. **Articulation Points (Cut Vertices):** All vertices $u \in V$ whose removal strictly increases the number of connected components.
+2. **Bridges (Cut Edges):** All 0-based edge IDs $e \in \{0, \dots, m-1\}$ whose removal strictly increases the number of connected components.
+3. **Biconnected Components (2-Vertex-Connected Edge Partitions):** A partition of all non-loop edges into maximal biconnected subgraphs (blocks), stored as sorted lists of edge IDs.
+
+During DFS traversal from each unvisited root, Structure A assigns every vertex $u$ a discovery timestamp $\text{disc}[u]$ and maintains its low-link value $\text{low}[u]$—the minimum discovery time reachable from $u$'s DFS subtree using zero or more tree edges followed by at most one non-tree back edge (excluding the incoming parent edge):
+- **Tree Edge $(u, v)$:** $\text{low}[u] = \min(\text{low}[u], \text{low}[v])$.
+  - **Bridge Criterion:** $(u, v)$ is a bridge if and only if $\text{low}[v] > \text{disc}[u]$.
+  - **Articulation Point Criterion:** A non-root vertex $u$ is an articulation point if and only if it has a tree child $v$ with $\text{low}[v] \ge \text{disc}[u]$; a DFS root $r$ is an articulation point if and only if it has $\ge 2$ DFS-tree children.
+- **Back Edge $(u, v)$ ($\text{edge\_id} \neq \text{parent\_edge\_id}$):** $\text{low}[u] = \min(\text{low}[u], \text{disc}[v])$.
+
+The complete correctness and linear-time proof is formalized in `docs/derivations/D1_250008029.pdf`.
+
+---
+
+### 4.2 Data Representation
+
+Structure A operates directly on the shared 1-based `Graph` representation (`graph.hpp`) and populates `StructureAResult` (`src/structA/structA.hpp`):
+
+| Array / Structure | Size | Meaning |
+| :--- | :---: | :--- |
+| `disc[v]` | $n + 1$ | DFS discovery timestamp of vertex $v$ (`0` if unvisited). |
+| `low[v]` | $n + 1$ | Lowest discovery timestamp reachable from the subtree of $v$ via at most one back edge. |
+| `is_ap[v]` | $n + 1$ | Boolean flag marking whether vertex $v$ satisfies the root or non-root articulation point criterion. |
+| `dfs_stack` (`std::vector<DFSFrame>`) | $\le n$ | Explicit heap-allocated DFS call frames storing `(u, parent_edge_id, adj_idx, root_children)`. |
+| `edge_stack` | $\le m$ | Explicit edge-ID stack holding traversed non-loop edges of active biconnected components. |
+| `StructureAResult` | Output | Canonical sorted `articulationPoints`, `bridges`, and `biconnectedComponents` (each sorted by edge ID). |
+
+Total auxiliary space is $\mathcal{O}(V + E)$.
+
+---
+
+### 4.3 Operations and Asymptotic Cost
+
+| Operation / Stage | What It Does | Time Complexity |
+| :--- | :--- | :---: |
+| **Graph & State Initialization** | Allocates `disc`, `low`, `is_ap`, `dfs_stack`, and `edge_stack` for $n$ vertices and $m$ edges. | $\mathcal{O}(V + E)$ |
+| **Iterative Tarjan DFS Loop** | Iterates over all unvisited roots $r \in [1, n]$, advancing neighbor cursors `adj_idx` on `dfs_stack` without call-stack recursion. | $\mathcal{O}(V + E)$ |
+| **Edge Stack Extraction** | Pushes traversed edges onto `edge_stack` and pops edges back to `(u, v)` whenever $\text{low}[v] \ge \text{disc}[u]$ (or at root child return). | $\mathcal{O}(E)$ |
+| **Canonical Output Sorting** | Sorts `articulationPoints`, `bridges`, and edge IDs within every biconnected component for deterministic comparison. | $\mathcal{O}(V \log V + E \log E)$ |
+| **`analyzeStructureA(g)` (Total)** | Executes full single-pass decomposition and returns `StructureAResult`. | $\mathcal{O}(V + E)$ core ($\mathcal{O}(V \log V + E \log E)$ sorted) |
+
+---
+
+### 4.4 Code Changes & Engineering Decisions (`src/structA/`)
+
+Key implementation changes and architectural decisions made in `src/structA/structA.hpp` and `src/structA/structA.cpp`:
+
+1. **Replaced Recursive DFS with Explicit `DFSFrame` Stack (`std::vector<DFSFrame>`):**
+   - *Change:* Converted recursive Tarjan DFS into an explicit iterative state machine where each `DFSFrame` tracks `(u, parent_edge_id, adj_idx, child_count)` and resumes parent post-order updates (`low[u] = min(low[u], low[v])`) upon child frame pop.
+   - *Rationale:* Standard recursive DFS overflows the OS call stack on linear path graphs of $V = 100{,}000$ vertices (`adversary/path.cpp`). Moving frame state to contiguous heap memory eliminated stack-overflow crashes and enabled $V = 100{,}000$ execution in **32.92 ms** on paths and **125.02 ms** on $2.45\text{M}$-edge cliques.
+2. **Multigraph Parallel-Edge Disambiguation via `parent_edge_id`:**
+   - *Change:* Passed and stored the incoming 0-based `edge_id` rather than the parent vertex ID `p` when descending tree edges, ignoring only the exact incoming edge (`edge_id == frame.parent_edge_id`).
+   - *Rationale:* Skipping by parent vertex `p` falsely ignores a second parallel edge $e_2 \neq e_1$ between $u$ and $p$, misclassifying parallel edges as bridges. Tracking `edge_id` treats $e_2$ as a valid back edge ($\text{low}[u] = \min(\text{low}[u], \text{disc}[p])$).
+3. **Self-Loop & Isolated-Vertex Edge-Case Hardening:**
+   - *Change:* Added explicit guards (`if (v == u) continue;`) before tree/back-edge classification and looped over all $r \in [1, n]$ for disconnected components without emitting empty blocks for degree-0 vertices.
+   - *Rationale:* Prevents self-loops $(u, u)$ from inflating root child counts or polluting `edge_stack`, and ensures disconnected/empty graphs (`adversary/empty.cpp`, `adversary/disconnected.cpp`) produce zero spurious components.
+4. **Canonical Output Normalization & Interface Alignment (`INTERFACE.md`):**
+   - *Change:* Aligned header signatures (`analyzeStructureA(const Graph& g)`) with `graph.hpp`, deduplicated `articulationPoints`, and sorted `bridges` and `biconnectedComponents` deterministically.
+   - *Rationale:* Enables direct $O(V + E)$ equality assertions against Structure B (`src/structB/`), the brute-force Oracle (`oracle/oracle.cpp`), and direct consumption by the Architect's Block-Cut Forest (`app/block_cut.cpp`).
+
+---
+
+### 4.5 Maintained Invariants & Verification
+
+Structure A satisfies all structural invariants (`A1`–`A5`) verified by `oracle/invariants_check.cpp` and differential tests (`oracle/oracle_integration_test.cpp`):
+- **A1 (Canonical Ordering):** `articulationPoints` and `bridges` are strictly sorted, duplicate-free, and within valid ranges (`[1, n]` and `[0, m-1]`).
+- **A2 (Exact Edge Partition):** Every non-loop edge $e \in [0, m-1]$ belongs to **exactly one** biconnected component, and no block is empty.
+- **A3 (Bridge-Block Duality):** Every bridge forms a singleton 1-edge biconnected component, and every non-bridge biconnected component contains $\ge 3$ edges (or $2$ parallel edges in a multigraph).
+- **A4 (Articulation-Block Incidence):** A vertex $v$ appears in `articulationPoints` if and only if $v$ belongs to $\ge 2$ distinct biconnected components.
+- **A5 (Block Connectivity):** Every reported biconnected component induces a connected subgraph.
+- **Empirical Verification:** Passed **10/10** handcrafted edge cases (paths, cycles, stars, disconnected/isolated vertices, parallel edges, self-loops), **500/500** randomized differential tests (`seed = 12345`) against Structure B and the Oracle (`ALL TESTS PASSED (failures: 0)`), and all **35** Analyst benchmark datasets up to $V = 100{,}000$ and $E = 2{,}450{,}000$ (mean **51.64 ms** at $V = 100{,}000$, outperforming Structure B across all 7 topologies).
+
+---
+
+### 4.6 Sources & Repository Artifacts
+
+- **Academic & Algorithmic References:**
+  1. R. E. Tarjan, *"Depth-First Search and Linear Graph Algorithms"*, SIAM Journal on Computing, Vol. 1, No. 2, pp. 146–160, 1972.
+  2. T. H. Cormen, C. E. Leiserson, R. L. Rivest, and C. Stein, *Introduction to Algorithms (CLRS)*, 4th ed., Chapter 20 (Elementary Graph Algorithms — DFS Edge Classification and Biconnected Components), MIT Press, 2022.
+  3. CP-Algorithms, *"Finding Bridges in a Graph in $\mathcal{O}(N+M)$"* and *"Finding Articulation Points in a Graph in $\mathcal{O}(N+M)$"* (edge-ID formulation for undirected multigraphs).
+- **Repository Deliverables & Integration Links:**
+  - **Source Implementation:** `src/structA/structA.hpp`, `src/structA/structA.cpp`
+  - **Mathematical Proof (Derivation D1):** `docs/derivations/D1_250008029.pdf`
+  - **Differential & Invariant Verification:** `oracle/oracle_integration_test.cpp`, `oracle/invariants_check.cpp`
+  - **Benchmark Logs & Scaling Figures:** `results/results.csv`, `docs/plots/oracle_vs_structures_log.png`, `docs/plots/scalability_comparison.png`, `docs/plots/topology_100k_comparison.png`
 ## 5. Structure B
 
 **Purpose.** Structure B finds all bridges of the graph by a different method from Structure A. It builds a DFS tree, then uses path marking with union-find to mark every tree edge that lies on a cycle. The unmarked tree edges are the bridges. It also lists the 2-edge-connected components (the pieces left after removing the bridges). The proof of correctness and of the running time is in my derivation D2 (`docs/derivations/D2_250041009.pdf`).
