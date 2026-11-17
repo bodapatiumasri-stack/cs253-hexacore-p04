@@ -159,13 +159,13 @@ https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
 
 
-## Structure D — Oracle Module
+## Oracle Module(D4)
 
-### 1. Objective
+### 7.1 Objective
 
 The Oracle module verifies the correctness of Structure A and Structure B using a brute-force BFS approach. It identifies articulation points and bridges by checking the number of connected components after removing individual vertices and edges.
 
-### 2. Working and Main Functions
+### 7.2 Working and Main Functions
 
 The Oracle first calculates the original number of connected components. It then removes each vertex and edge individually and performs BFS to check whether the component count increases.
 
@@ -177,7 +177,7 @@ The Oracle first calculates the original number of connected components. It then
 | `runOracle()` | Performs all checks and stores the results. |
 | `compareResults()` | Compares Oracle results with Structure A and Structure B and reports MATCH or MISMATCH. |
 
-### 3. Complexity Analysis
+### 7.3 Complexity Analysis
 
 | Function | Time Complexity |
 |---|---|
@@ -188,7 +188,7 @@ The Oracle first calculates the original number of connected components. It then
 
 Auxiliary Space Complexity: O(V + E).
 
-### 4. Testing
+### 7.4 Testing
 
 The Oracle was tested using different graph structures to verify its correctness.
 
@@ -203,13 +203,13 @@ The Oracle was tested using different graph structures to verify its correctness
 | Parallel edges | Tests multiple edges between vertices. |
 | Self-loops | Tests self-loop handling. |
 
-### 5. Limitations
+### 7.5 Limitations
 
 Since the Oracle uses repeated BFS, its execution becomes expensive for large graphs. Therefore, `oracleTooLarge()` skips execution when the number of vertices exceeds 5,000 or the number of edges exceeds 25,000.
 
 The Oracle is mainly intended for verifying smaller test graphs, while the efficient algorithms handle larger inputs.
 
-### 6. Conclusion
+### 7.6 Conclusion
 
 The Oracle provides an independent correctness-checking mechanism for the project. By comparing its BFS-based results with Structure A and Structure B, it helps detect errors and improves the reliability of the overall implementation.
 
