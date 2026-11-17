@@ -122,7 +122,7 @@ During DFS traversal from each unvisited root, Structure A assigns every vertex 
 - **Tree Edge $(u, v)$:** $\text{low}[u] = \min(\text{low}[u], \text{low}[v])$.
   - **Bridge Criterion:** $(u, v)$ is a bridge if and only if $\text{low}[v] > \text{disc}[u]$.
   - **Articulation Point Criterion:** A non-root vertex $u$ is an articulation point if and only if it has a tree child $v$ with $\text{low}[v] \ge \text{disc}[u]$; a DFS root $r$ is an articulation point if and only if it has $\ge 2$ DFS-tree children.
-- **Back Edge $(u, v)$ ($\text{edge\_id} \neq \text{parent\_edge\_id}$):** $\text{low}[u] = \min(\text{low}[u], \text{disc}[v])$.
+- **Back Edge $(u, v)$ (`edge_id` $\neq$ `parent_edge_id`):** $\text{low}[u] = \min(\text{low}[u], \text{disc}[v])$.
 
 The complete correctness and linear-time proof is formalized in `docs/derivations/D1_250008029.pdf`.
 
