@@ -91,11 +91,11 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 * **Disconnected Graph Support**: Explicitly tracks `component[u]` across all forest roots, handling multi-component graphs natively without dummy super-roots.
 * **Long-Path Resilience**: Iterative DFS in forest preprocessing satisfies the system testing rule against stack overflow on path-graph edge cases.
 
-## Structure A: Iterative Tarjan Low-Link Engine (`src/structA/`)
+## 4. Structure A: Iterative Tarjan Low-Link Engine (`src/structA/`)
 **Owner:** Rishika Goyal (`250008029` / `@che250008029-netizen`)  
 **Derivation:** `docs/derivations/D1_250008029.pdf`
 
-### 1. Design Overview & Algorithmic Changes
+### 4.1. Design Overview & Algorithmic Changes
 Structure A implements a single-pass $O(V + E)$ Tarjan Depth-First Search engine (`analyzeStructureA`) that simultaneously computes:
 1. **Articulation Points (Cut Vertices):** Vertices whose removal increases the number of connected components.
 2. **Bridges (Cut Edges):** Edge IDs whose removal increases the number of connected components.
@@ -107,12 +107,12 @@ Key engineering modifications made in `src/structA/structA.hpp` and `src/structA
 * **Self-Loop & Isolated-Vertex Edge-Case Safety:** Self-loops $(u, u)$ are handled cleanly without corrupting child counts or low-link propagation, and disconnected/isolated vertices ($d(u) = 0$) are skipped safely without generating spurious empty components.
 * **Canonical Output Ordering:** Articulation points, bridge edge IDs, and edge lists within each biconnected component are sorted and deduplicated prior to returning `StructureAResult`, guaranteeing deterministic equality checks against Structure B (`src/structB/`), the Block-Cut Forest (`app/block_cut.cpp`), and the brute-force Oracle (`oracle/oracle.cpp`).
 
-### 2. Complexity & Correctness Summary
+### 4.2. Complexity & Correctness Summary
 * **Time Complexity:** $O(V + E)$ for graph traversal and low-link updates, plus $O(V \log V + E \log E)$ for canonical sorting of output vectors.
 * **Space Complexity:** $O(V + E)$ auxiliary memory for `disc`, `low`, `visited`, the explicit `DFSFrame` stack, and the biconnected edge stack.
 * **Verification Status:** Passed 10/10 handcrafted edge-case topologies (paths, cycles, stars, disconnected/isolated vertices, parallel edges, self-loops), 500/500 randomized differential stress tests against Structure B and the Oracle, and invariants `A1–A5` in `oracle/invariants_check.cpp`.
 
-### 3. Resources & References
+### 4.3. Resources & References
 * **Algorithmic Foundations:**
   * R. E. Tarjan (1972), *"Depth-First Search and Linear Graph Algorithms"*, SIAM Journal on Computing, 1(2), 146–160. (Foundation for discovery times $\text{disc}[u]$, low-link values $\text{low}[u]$, and biconnected component edge-stack extraction).
   * T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein, *Introduction to Algorithms (CLRS)*, 4th ed., Chapter 20 (Elementary Graph Algorithms — DFS edge classification and biconnected components).
