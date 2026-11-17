@@ -208,8 +208,10 @@ The Oracle was tested using different graph structures to verify its correctness
 Since the Oracle uses repeated BFS, its execution becomes expensive for large graphs. Therefore, `oracleTooLarge()` skips execution when the number of vertices exceeds 5,000 or the number of edges exceeds 25,000.
 
 The Oracle is mainly intended for verifying smaller test graphs, while the efficient algorithms handle larger inputs.
+### 7.6 links
+Derivation: D4 (docs/derivations/D4_250041021.pdf). Code: oracle.cpp. Main pull requests: pull requests- #4#16#49
 
-### 7.6 Conclusion
+### 7.7 Conclusion
 
 The Oracle provides an independent correctness-checking mechanism for the project. By comparing its BFS-based results with Structure A and Structure B, it helps detect errors and improves the reliability of the overall implementation.
 
