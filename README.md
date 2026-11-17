@@ -38,6 +38,7 @@ for gen in ./gen_path ./gen_cycle ./gen_star ./gen_cliques ./gen_disconnected ./
   ./benchmark_runner /tmp/bench_graph.txt; \
 done
 ```
+## Testing
 ### Two triangles joined by a path
 ========== ORACLE RESULTS ==========
 
