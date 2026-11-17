@@ -100,7 +100,7 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 * **Adversarial Suite Results:** Passed 100% of differential checks against `Oracle` and `Structure B` across all adversarial graph classes (`path`, `cycle`, `xstar`, `cliques`, `random`, `disconnected`, and `empty`), confirming exact agreement on articulation points, bridges, and BCC edge partitions[cite: 1].
 ## 5. Structure B
 
-**Purpose.** Structure B finds all bridges of the graph by a different method from Structure A. It builds a DFS tree, then uses path marking with union-find to mark every tree edge that lies on a cycle. The unmarked tree edges are the bridges. It also lists the 2-edge-connected components (the pieces left after removing the bridges). The proof of correctness and of the running time is in my derivation D2 (`docs/derivations/D2_mc250041009.pdf`).
+**Purpose.** Structure B finds all bridges of the graph by a different method from Structure A. It builds a DFS tree, then uses path marking with union-find to mark every tree edge that lies on a cycle. The unmarked tree edges are the bridges. It also lists the 2-edge-connected components (the pieces left after removing the bridges). The proof of correctness and of the running time is in my derivation D2 (`docs/derivations/D2_250041009.pdf`).
 
 ### 5.1 Representation
 
@@ -129,8 +129,7 @@ Total space is O(V+E).
 | `findTwoEdgeConnectedComponents` | BFS that does not cross bridges; sorts each component and the list of components | O(V+E) + O(V log V) for sorting |
 | `computeStructureB` (whole) | calls the above in order | O((V+E) α(V) + V log V) |
 
-The two sorts only fix the output order so that it can be compared with Structure A and the oracle. The core of Structure B (finding the bridges) is O((V+E) α(V)). [If INTERFACE.md lists other operations for Structure B, add each one here with its exact name and cost.]
-
+The two sorts only fix the output order so that it can be compared with Structure A and the oracle. The core of Structure B (finding the bridges) is O((V+E) α(V)). 
 ### 5.3 Invariants it maintains
 
 1. **No cross edges.** Every non-tree edge joins a vertex to one of its ancestors (D2, Lemma 1). `findBackEdges` relies on this, because it only tests the two ancestor directions.
@@ -152,13 +151,7 @@ The two sorts only fix the output order so that it can be compared with Structur
 
 ### 5.5 Links
 
-Derivation: D2 (`docs/derivations/D2_mc250041009.pdf`). Code: `structB.cpp`. Main commits / pull requests:
-commits-
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/f13237654d770ba8d73581227bac90415bb2ad45
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/8556e74e079fe336323d5444975bce30b9be1c6a
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/f89e9a96177c8f0fb126e6e9dc7f0e2244990c6f
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/7ef8033f728ddf841726ecef6c6b7bf17badc644
-https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/commits/2c1b118c5426866405907c7254a8c03b235b12c1
+Derivation: D2 (`docs/derivations/D2_250041009.pdf`). Code: `structB.cpp`. Main pull requests:
 pull requests-
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/7
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/14
