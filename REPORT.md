@@ -12,9 +12,9 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 | Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
 | Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
 
-### Architect Module (D3) — Block-Cut Forest & Resilience Application
+###3. Architect Module (D3) — Block-Cut Forest & Resilience Application
 
-#### 1. Overview & Role Responsibilities
+#### 3.1. Overview & Role Responsibilities
 **Role:** Architect (Owner: D3)  
 **Primary Objective:** Design the system-wide module interfaces and implement the Block-Cut Forest construction, Lowest Common Ancestor (LCA) preprocessing, $O(\log n)$ vertex-failure connectivity queries, critical node impact ranking, and the end-to-end CLI application.
 
@@ -27,7 +27,7 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 
 ---
 
-#### 2. System Architecture & Data Pipeline
+#### 3.2. System Architecture & Data Pipeline
 
 The Architect module serves as the central orchestration layer connecting low-level graph decomposition with high-level fault-tolerance analytics:
 
@@ -39,7 +39,7 @@ The Architect module serves as the central orchestration layer connecting low-le
 
 ---
 
-#### 3. Core Algorithms & Implementation Details
+#### 3.3. Core Algorithms & Implementation Details
 
 ##### A. Block-Cut Forest Construction (`app/block_cut.cpp`)
 * **Bipartite Node Indexing**:
@@ -75,7 +75,7 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 
 ---
 
-#### 4. Complexity Analysis
+#### 3.4. Complexity Analysis
 
 | Function / Operation | Time Complexity | Space Complexity | Implementation Notes |
 | :--- | :--- | :--- | :--- |
@@ -86,7 +86,7 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 
 ---
 
-#### 5. Architectural Highlights & Compliance
+#### 3.5. Architectural Highlights & Compliance
 * **Strict Decoupling (`INTERFACE.md`)**: Separates graph decomposition (D1), independent DSU bridge detection (D2), BFS ground-truth verification (D4), and block-cut query processing (D3), enabling independent testing and clean integration.
 * **Disconnected Graph Support**: Explicitly tracks `component[u]` across all forest roots, handling multi-component graphs natively without dummy super-roots.
 * **Long-Path Resilience**: Iterative DFS in forest preprocessing satisfies the system testing rule against stack overflow on path-graph edge cases.
