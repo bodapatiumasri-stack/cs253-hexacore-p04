@@ -94,8 +94,8 @@ Quantifies the topological fragmentation caused by removing each articulation ve
 ---
 
 #### 3.6. Resources
-* ** F. Harary, Graph Theory, Addison-Wesley, 1969, Chapter 3 (Blocks and the Block-Cutpoint Tree).
-* ** R. E. Tarjan, “Depth-First Search and Linear Graph Algorithms,” SIAM Journal on Computing, Vol. 1, No. 2, pp. 146–160, 1972.
+* F. Harary, Graph Theory, Addison-Wesley, 1969, Chapter 3 (Blocks and the Block-Cutpoint Tree).
+* R. E. Tarjan, “Depth-First Search and Linear Graph Algorithms,” SIAM Journal on Computing, Vol. 1, No. 2, pp. 146–160, 1972.
 
 ## 4. Structure A: Iterative Tarjan Low-Link Engine (`src/structA/`)
 **Owner:** Rishika Goyal (`250008029` / `@che250008029-netizen`)  
