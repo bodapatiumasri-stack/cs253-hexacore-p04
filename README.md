@@ -38,6 +38,43 @@ for gen in ./gen_path ./gen_cycle ./gen_star ./gen_cliques ./gen_disconnected ./
   ./benchmark_runner /tmp/bench_graph.txt; \
 done
 ```
+### Two triangles joined by a path
+========== ORACLE RESULTS ==========
+
+Original components: 1
+
+Articulation Points:
+3 4 5
+
+Bridges (Edge IDs):
+3 4
+
+========== VERIFICATION ==========
+
+Structure A - Articulation Points: MATCH
+Structure A - Bridges: MATCH
+Structure B - Bridges: MATCH
+
+===================================
+
+### Parallel edges
+========== ORACLE RESULTS ==========
+
+Original components: 1
+
+Articulation Points:
+2
+
+Bridges (Edge IDs):
+2
+
+========== VERIFICATION ==========
+
+Structure A - Articulation Points: MATCH
+Structure A - Bridges: MATCH
+Structure B - Bridges: MATCH
+
+===================================
 ## Benchmarks and figures
 
 Before rerunning the full benchmark suite, remove or clear any previous `results/results.csv` so appended rows are not duplicated:
@@ -54,27 +91,4 @@ done
 
 # 3. Regenerate all 3 performance figures (writes docs/plots/*.png)
 python benchmark/plot_results.py
-
-## Results at a glance
-
-* **Correctness Verification:** **13 / 13 `PASS`** against the BFS Oracle on all eligible graphs (`V ≤ 5,000` and `E ≤ 25,000`), and **35 / 35** exact bridge-set agreement between Structure A and Structure B across all datasets.
-* **Extreme-Scale Performance (`V ≈ 100,000`):** Structure A completed every topology in **13.43 ms – 125.02 ms** (mean **51.64 ms**), while Structure B completed in **33.89 ms – 159.23 ms** (mean **123.10 ms**).
-
-| Dataset (`V ≈ 100,000`) | Vertices (`V`) | Edges (`E`) | Structure A (ms) | Structure B (ms) | Oracle (ms) | Status |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `cliques_100000.txt` | 98,001 | 2,450,000 | 125.024 | 132.704 | SKIPPED | Verified (A = B) |
-| `cycle_100000.txt` | 100,000 | 100,000 | 13.426 | 33.894 | SKIPPED | Verified (A = B) |
-| `disconnected_100000.txt` | 100,000 | 99,997 | 46.688 | 103.839 | SKIPPED | Verified (A = B) |
-| `empty_100000.txt` | 100,000 | 0 | 29.007 | 153.933 | SKIPPED | Verified (A = B) |
-| `path_100000.txt` | 100,000 | 99,999 | 32.917 | 156.573 | SKIPPED | Verified (A = B) |
-| `random_100000.txt` | 100,000 | 300,000 | 67.515 | 121.513 | SKIPPED | Verified (A = B) |
-| `star_100000.txt` | 100,000 | 99,999 | 46.910 | 159.229 | SKIPPED | Verified (A = B) |
-
-See [`REPORT.md`](./REPORT.md) (Section 9) and [`docs/final_analyst_report.md`](./docs/final_analyst_report.md) for full theoretical derivations, all 35 dataset rows, and scaling plots.
-
-## Known limitations
-
-* **Oracle Scalability Cutoff:** Because the brute-force BFS Oracle runs in O((V + E)²) time, `oracleTooLarge(g)` skips Oracle execution whenever `V > 5,000` or `E > 25,000` (e.g., `cliques_5000.txt` has `E = 122,500` and is skipped). Consequently, 13 of the 35 datasets are Oracle-verified directly, while the 22 large datasets are cross-verified between Structure A and Structure B.
-* **Sub-Millisecond Timer Granularity:** `benchmark_runner.cpp` executes a single timed pass per graph using `std::chrono::high_resolution_clock`. Fast runs under ~0.05 ms on small or sparse graphs (such as `cliques_1000` for Structure A or `disconnected_5000` for Structure B) record `0.000 ms` due to single-run clock resolution; multi-iteration averaging would resolve sub-millisecond differences.
-* **Structure B Output Scope:** Structure B independently identifies bridges and 2-edge-connected components via DSU cycle marking, whereas articulation points and biconnected components are computed solely by Structure A (and consumed by the Block-Cut Forest).
-* **Append-Mode CSV Output:** `benchmark_runner` appends to `results/results.csv` (`std::ios::app`), so `results/results.csv` must be cleared before rerunning the full 35-graph suite to prevent duplicate entries.
+```
