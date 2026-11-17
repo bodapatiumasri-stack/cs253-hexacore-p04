@@ -237,7 +237,7 @@ For large-input generation, `cliques 100 142` creates 14,101 vertices and 1,001,
 
 An undirected DFS has no cross edges. Every non-tree edge connects a vertex to one of its ancestors, which is why low-link values can capture the back edges needed to identify articulation points and bridges.
 
-The DFS root needs a separate rule because it has no parent. It is an articulation point only if it has at least two DFS-tree children.
+The DFS root needs a separate rule because it has no ancestor above it, so the normal test low(c) ≥ disc(root) is always true for its children. It is an articulation point only if it has at least two DFS-tree children.
 
 A program that incorrectly applies the normal non-root test to the root may report a false articulation point on `path` and `cycle` (bug A). A program that skips the root entirely may fail to identify the articulation point in `star` (bug B).
 
