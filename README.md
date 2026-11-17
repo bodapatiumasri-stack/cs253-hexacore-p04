@@ -24,3 +24,13 @@ g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/or
 g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp app/block_cut.cpp app/ranking.cpp app/main.cpp -o app_demo && \
 g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/oracle.cpp benchmark/benchmark_runner.cpp -o benchmark_runner && \
 for f in adversary/*.cpp; do g++ -O2 -std=c++17 "$f" -o "gen_$(basename "${f%.cpp}")"; done
+
+One Command to Run Tests, Application, and Every BenchmarkRun the differential integration tests, structural invariant checks, interactive Block-Cut Forest application, and full-scale ($V = 100{,}000$) benchmarks across every adversarial topology in a single command:
+
+./integration_test && \
+printf "5 5\n1 2\n2 3\n3 1\n3 4\n4 5\n3\n1 5 3\n1 5 4\n1 2 3\n" | ./app_demo && \
+for gen in ./gen_path ./gen_cycle ./gen_star ./gen_cliques ./gen_disconnected ./gen_empty ./gen_random; do \
+  $gen 100000 > /tmp/bench_graph.txt && \
+  ./invariants_check < /tmp/bench_graph.txt && \
+  ./benchmark_runner /tmp/bench_graph.txt; \
+done
