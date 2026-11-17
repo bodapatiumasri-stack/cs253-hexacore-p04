@@ -215,6 +215,17 @@ Derivation: D4 (docs/derivations/D4_250041021.pdf). Code: oracle.cpp. Main pull 
 
 The Oracle provides an independent correctness-checking mechanism for the project. By comparing its BFS-based results with Structure A and Structure B, it helps detect errors and improves the reliability of the overall implementation.
 
+### 7.8 Bug log
+
+| Date | Module | Symptom | How found | Fix |
+|---|---|---|---|---|
+| 15 Nov | `graph.hpp` | `main` did not build: `graph.hpp` was not in `main` yet, and Structure A included `../common/graph.hpp`, which did not exist | compiling Structure A, Structure B and the oracle together | `graph.hpp` added by the Architect (commit `5c8b146`, latest update `9113694`) |
+| 15 Nov | Structure A | Used the old type name `GraphData` and a different include path from the final `Graph` header | the same build attempt | PR #25 (`structA.hpp`) and PR #26 (`structA.cpp`) |
+| 15 Nov | Structure B | Included `graph.hpp` from a different path than Structure A, and `computeStructureB` had a different signature | the same build attempt | commits `4e91d3f` and `f89e9a9` (include path), PR #28 (inline overload) |
+| 15 Nov | Oracle | `oracle.hpp` defined its own `Graph` alias, which clashes with the shared `struct Graph` | reading `oracle.hpp` while building | fixed by the Oracle owner (PR #31) |
+| 16 Nov | `adversary/path.cpp` | No check for a missing command-line argument, unlike the other six generators | reading the source code | not fixed; see Limitations (section 8.4) |
+
+
 ## 8. Adversarial Inputs
 
 All generators are located in `adversary/`. Each generator prints a graph in the common input format (`n m`, followed by one `u v` pair per line). Vertices are numbered from 1 to n, and the generated graphs contain no self-loops or duplicate edges. This allows Structure A, Structure B, and the Oracle to process the same input. Large graphs are generated when needed and are not committed to the repository.
