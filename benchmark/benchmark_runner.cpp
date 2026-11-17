@@ -54,11 +54,11 @@ int main(int argc, char* argv[]) {
     if (g.n <= 0) return 1;
 
     
-    std::ifstream check_csv("benchmark/results.csv");
+    std::ifstream check_csv("results/results.csv");
     bool write_header = !check_csv.good() || check_csv.peek() == std::ifstream::traits_type::eof();
     check_csv.close();
 
-    std::ofstream csv_out("benchmark/results.csv", std::ios::app);
+    std::ofstream csv_out("results/results.csv", std::ios::app);
     if (write_header) {
         csv_out << "Graph_Path,V,E,StructA_ms,StructB_ms,Oracle_ms,Verified\n";
     }
