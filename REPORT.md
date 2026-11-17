@@ -12,7 +12,9 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 | Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
 | Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
 
-###3. Architect Module (D3) — Block-Cut Forest & Resilience Application
+### 3. Architect Module (D3) — Block-Cut Forest & Resilience Application
+**Owner:** Deepali Chauhan (`250041014` / `DeepaliChauhan07`)  
+**Derivation:** `docs/derivations/D3_250041014.pdf`
 
 #### 3.1. Overview & Role Responsibilities
 **Role:** Architect (Owner: D3)  
