@@ -11,13 +11,16 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 | Keetha Akshaya | 250041021 | @akshaya129 | Oracle owner | oracle/ | D4 |
 | Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
 | Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
-## Build & Run (Single-Sequence Verification)
 
-Compile all executables from the repository root (`g++ -O2 -std=c++17`):
+## What the Project Does
+This project identifies critical vertices (articulation points), critical links (bridges), and biconnected components in undirected multigraphs in $O(V + E)$ time, constructs a Block-Cut Forest to rank node criticality and answer single-vertex failure disconnection queries, and validates correctness and scaling against a brute-force Oracle across adversarial topologies up to $V = 100{,}000$.
+
+## How to Build It
+From the repository root, compile all executables with `g++ -O2 -std=c++17`:
 
 ```bash
-g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp app/block_cut.cpp oracle/oracle.cpp oracle/oracle_integration_test.cpp -o integration_test
-g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/oracle.cpp oracle/invariants_check.cpp -o invariants_check
-g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp app/block_cut.cpp app/ranking.cpp app/main.cpp -o app_demo
-g++ -O2 -std=c++17 adversary/path.cpp -o gen_path
-g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/oracle.cpp benchmark/benchmark_runner.cpp -o benchmark_runner
+g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp app/block_cut.cpp oracle/oracle.cpp oracle/oracle_integration_test.cpp -o integration_test && \
+g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/oracle.cpp oracle/invariants_check.cpp -o invariants_check && \
+g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp app/block_cut.cpp app/ranking.cpp app/main.cpp -o app_demo && \
+g++ -O2 -std=c++17 -I. src/structA/structA.cpp src/structB/structB.cpp oracle/oracle.cpp benchmark/benchmark_runner.cpp -o benchmark_runner && \
+for f in adversary/*.cpp; do g++ -O2 -std=c++17 "$f" -o "gen_$(basename "${f%.cpp}")"; done
