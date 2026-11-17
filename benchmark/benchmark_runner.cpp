@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     if (write_header) {
         csv_out << "Graph_Path,V,E,StructA_ms,StructB_ms,Oracle_ms,Verified\n";
     }
--
+
     auto start_A = std::chrono::high_resolution_clock::now();
     StructureAResult resA = analyzeStructureA(g, g.n);
     auto end_A = std::chrono::high_resolution_clock::now();
