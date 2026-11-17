@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     auto end_B = std::chrono::high_resolution_clock::now();
     double time_B = std::chrono::duration<double, std::milli>(end_B - start_B).count();
 
-    /
+
     double time_Oracle = -1.0;
     std::string verified = "SKIPPED";
 
