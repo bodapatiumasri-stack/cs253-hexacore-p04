@@ -403,7 +403,7 @@ The complete proof is provided in `docs/derivations/D5_250041015.pdf`.
 
 - The combined run covers small inputs only, so no full-scale result (10⁵ vertices or 10⁶ edges) is claimed here.
 - The `random` generator accepts at most m = n(n−1)/4 edges to keep generation manageable.
-- There is no generator for self-loops or parallel edges because they are outside the agreed input format.
+- There is no generator for self-loops because they are outside the agreed input format.
 - I did not take timing measurements. Performance measurements are covered by the Analyst.
 - The `path` generator does not check for a missing command-line argument (the other six generators do), so `./path` without a number fails instead of printing a usage message.
 
