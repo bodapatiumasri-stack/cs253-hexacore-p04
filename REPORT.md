@@ -535,6 +535,10 @@ The adversary generators were compiled on a laptop running Windows 11 Home Singl
 
 Correctness testing used eight small inputs: path 5, path 10, cycle 10, star 10, empty 5, disconnected 10, cliques 3 4, and random 50 80 1. The random graph used seed 1. These tests were run through the local checker; no timing measurements or repeated trials were recorded.
 
+### 11.Results
+
+Refer Section 9.4
+
 ### 12. Limitations
 
 - Structure A sorts `articulationPoints`, `bridges`, and edge IDs within each biconnected component to guarantee canonical output ordering for differential testing, adding an $\mathcal{O}(V \log V + E \log E)$ post-processing step on top of the $\mathcal{O}(V + E)$ DFS traversal.
