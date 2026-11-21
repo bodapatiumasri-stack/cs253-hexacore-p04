@@ -19,6 +19,13 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 - Implemented the single-pass iterative Tarjan low-link DFS engine (`src/structA/structA.hpp`, `src/structA/structA.cpp`) to compute articulation points, bridges, and biconnected components in $\mathcal{O}(V + E)$ time with multigraph edge-ID tracking and self-loop handling.
 - Prepared the D1 derivation (`docs/derivations/D1_250008029.pdf`) proving the bridge and articulation-point low-link criteria, biconnected edge-stack extraction, and linear time/space complexity.
 - Verified Structure A across edge cases, randomized differential tests against Structure B and the Oracle, and full-scale ($V = 100{,}000$) adversarial topologies, and finalized repository documentation (`README.md`, `REPORT.md`).
+- 
+**Bodapati Uma Sri — Structure B owner**
+
+- Implemented Structure B in `src/structB/` (`structB.cpp`, `structB.hpp`): an iterative DFS forest, non-tree edge detection with `tin`/`tout`, and union-find path marking (union by rank, path compression, `top[]`) to find bridges .
+- Built the two-edge-connected components from the bridges with a BFS that never crosses a bridge, and handled parallel edges (matched by edge ID), self-loops and disconnected graphs.
+- Prepared the D2 derivation(`docs/derivations/D2_250041009.pdf`) proving that path marking marks exactly the tree edges on a cycle, so the unmarked tree edges are the bridges, in O((V+E) α(V)).
+- Contributed to `TOOLS.md`
 
 **Deepali Chauhan — Architect & Interface Owner**
 
