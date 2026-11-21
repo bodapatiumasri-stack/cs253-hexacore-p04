@@ -14,7 +14,7 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 
 ### 1.1 Contributions
 
-**Mamatha Dharavath — Adversary**
+**Dharavath Mamatha — Adversary**
 
 - Implemented seven graph generators in the `adversary/` directory to create adversarial and edge-case inputs (PR #1, #3).
 - Prepared the D5 derivation explaining why undirected DFS has no cross edges, including the role of the root rule (PR #17).
