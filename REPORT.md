@@ -519,6 +519,10 @@ The adversary generators were compiled on a laptop running Windows 11 Home Singl
 
 Correctness testing used eight small inputs: path 5, path 10, cycle 10, star 10, empty 5, disconnected 10, cliques 3 4, and random 50 80 1. The random graph used seed 1. These tests were run through the local checker; no timing measurements or repeated trials were recorded.
 
+### 12. Limitations
+
+- The adversary generators were tested only on small inputs through the local checker. Their correctness and performance on large graphs were not independently evaluated.
+
 ## 13. References
 
 **Papers and books**
