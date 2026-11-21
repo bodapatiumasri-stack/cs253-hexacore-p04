@@ -552,6 +552,11 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
 ### Structure A
 
 Structure A (`src/structA/structA.cpp`) was compiled and verified locally on Windows 11 using `g++ -O2 -std=c++17 -I.` alongside Structure B, the Oracle (`oracle/oracle_integration_test.cpp`), structural invariant checks (`oracle/invariants_check.cpp`), and the adversarial generators (`adversary/*.cpp`). Correctness was verified across 10 handcrafted edge-case graphs (including parallel edges, self-loops, isolated vertices, stars, cycles, and paths) and 500 seeded random graphs (`seed = 12345`), while stack safety and linear scaling were tested up to $V = 100{,}000$ vertices across all seven adversarial topologies.### Structure A
+### Structure B
+
+Structure B (`src/structB/structB.cpp`) was compiled on a laptop running Windows 11 Home Single Language, version 25H2 (OS Build 26200.9974), x86_64 (AMD64), using g++ (MinGW.org GCC-6.3.0-1) 6.3.0 with `g++ -std=c++17 -O2 -c`.
+
+Correctness was checked with `integration_test` (Structure B against Structure A and the oracle on the named edge-case graphs and the seeded random graphs, seed 12345), and a path of 200,000 vertices to confirm the iterative DFS does not overflow the stack. The benchmark times for Structure B come from the team's runs in `results/results.csv`, made on the machine stated in the README.
 
 ### Architect & Application (`app/`)
 
