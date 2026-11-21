@@ -20,6 +20,12 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 - Prepared the D1 derivation (`docs/derivations/D1_250008029.pdf`) proving the bridge and articulation-point low-link criteria, biconnected edge-stack extraction, and linear time/space complexity.
 - Verified Structure A across edge cases, randomized differential tests against Structure B and the Oracle, and full-scale ($V = 100{,}000$) adversarial topologies, and finalized repository documentation (`README.md`, `REPORT.md`).
 
+**Deepali Chauhan — Architect & Interface Owner**
+
+- Designed the system-wide architectural contract (`INTERFACE.md`) and shared 1-based undirected multigraph representation (`graph.hpp`) with unique 0-based edge IDs across all modules (D1–D4).
+- Implemented the Block-Cut Forest construction (`app/block_cut.h`, `app/block_cut.cpp`) with iterative binary lifting LCA preprocessing for $\mathcal{O}(\log n)$ single-vertex failure connectivity queries, as well as the critical node impact ranking engine (`app/ranking.h`, `app/ranking.cpp`) and end-to-end CLI application (`app/main.cpp`).
+- Prepared the D3 derivation (`docs/derivations/D3_250041014.pdf`) proving that the bipartite block-cut incidence graph is acyclic (a forest) and that vertex-failure separation reduces to tree-path distance checks.
+
 **Dharavath Mamatha — Adversary**
 
 - Implemented seven graph generators in the `adversary/` directory to create adversarial and edge-case inputs (PR #1, #3).
@@ -288,6 +294,12 @@ Tarjan's classic low-link formulation in the lecture notes relies on recursive D
 
 In **Derivation D1** (`docs/derivations/D1_250008029.pdf`) and `src/structA/structA.cpp`, I addressed both gaps by replacing call-stack recursion with an explicit heap-allocated `DFSFrame` state machine (`std::vector<DFSFrame>`) and tracking incoming 0-based `parent_edge_id`s rather than parent vertices. This preserves strict $\mathcal{O}(V + E)$ traversal complexity while handling parallel edges, self-loops, disconnected components, and deep $100{,}000$-vertex chains without stack overflow.
 
+### Deepali Chauhan — Architect & Interface Owner
+
+While standard lectures cover biconnected components and articulation points as static decompositions, answering dynamic fault-tolerance queries—such as whether removing a given node $f$ disconnects arbitrary nodes $x$ and $y$, and ranking vertices by topological fragmentation—requires compressing biconnected blocks into a queryable tree structure.
+
+In **Derivation D3** (`docs/derivations/D3_250041014.pdf`) and `app/block_cut.cpp`, I bridged the raw `StructureAResult` decomposition to fast resilience analytics by constructing a bipartite Block-Cut Forest $F = (V_B \cup V_A, E_F)$ with singleton block handling for isolated vertices and iterative DFS binary lifting (`up[LOG][N]`). This reduces arbitrary single-vertex failure queries to $\mathcal{O}(1)$ fast-paths for non-articulation vertices and $\mathcal{O}(\log n)$ tree-path distance checks (`dist(x, y) == dist(x, f) + dist(f, y)`) for cut vertices, while computing exact fragmentation impact scores (`branches - 1`) in `app/ranking.cpp`.
+
 ### Dharavath Mamatha — Adversary
 
 The reading explains that in an undirected graph, every non-tree edge in a DFS connects a vertex to one of its ancestors. This property is used in DFS-based graph algorithms, including finding biconnected components.
@@ -529,6 +541,10 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
 
 Structure A (`src/structA/structA.cpp`) was compiled and verified locally on Windows 11 using `g++ -O2 -std=c++17 -I.` alongside Structure B, the Oracle (`oracle/oracle_integration_test.cpp`), structural invariant checks (`oracle/invariants_check.cpp`), and the adversarial generators (`adversary/*.cpp`). Correctness was verified across 10 handcrafted edge-case graphs (including parallel edges, self-loops, isolated vertices, stars, cycles, and paths) and 500 seeded random graphs (`seed = 12345`), while stack safety and linear scaling were tested up to $V = 100{,}000$ vertices across all seven adversarial topologies.### Structure A
 
+### Architect & Application (`app/`)
+
+The Architect module (`app/block_cut.cpp`, `app/ranking.cpp`, `app/main.cpp`) was compiled from the repository root using `g++ -O2 -std=c++17 -I.` linked against `src/structA/structA.cpp`. Functional correctness of Block-Cut Forest construction, binary lifting LCA distances, `isDisconnectedAfterFailure` queries, and `rankCriticalNodes` ordering was verified across connected graphs, multi-component graphs with isolated vertices, and deep path topologies up to $V = 100{,}000$ without recursion stack overflow.
+
 ### Adversary
 
 The adversary generators were compiled on a laptop running Windows 11 Home Single Language, version 25H2 (OS Build 26200.9974), using MinGW GCC 6.3.0 with g++ -O2 and the compiler’s default C++ standard. The laptop has 2 CPU cores and 4 logical processors, with 160 KB L1 cache, 1.0 MB L2 cache, and 4.0 MB L3 cache. The CPU model was not recorded.
@@ -543,6 +559,9 @@ Refer Section 9.4
 
 - Structure A sorts `articulationPoints`, `bridges`, and edge IDs within each biconnected component to guarantee canonical output ordering for differential testing, adding an $\mathcal{O}(V \log V + E \log E)$ post-processing step on top of the $\mathcal{O}(V + E)$ DFS traversal.
 - While Structure A supports multigraph parallel edges and self-loops via unique 0-based `edge_id` tracking, downstream invariant checks (`invariants_check.cpp`) and adversarial generators are restricted to simple graphs (`I0`), so multigraph behavior was validated primarily via targeted unit tests in `oracle_integration_test.cpp`.
+
+- `buildBlockCutForest` deduplicates vertices per biconnected block using `std::sort` and allocates an $\mathcal{O}(N \log N)$ binary lifting table `up[LOG][N]` ($N \le 2n$), which uses slightly more memory and $\mathcal{O}((n + m)\log n)$ preprocessing time compared to Euler-tour RMQ or linear-time tarjan offline LCA.
+- Current failure queries (`isDisconnectedAfterFailure`) and impact rankings (`rankCriticalNodes`) model single-vertex removals only; multi-vertex simultaneous failures or edge-specific failure queries (via bridge-cut trees) are not yet supported in `app/main.cpp`.
 
 - The adversary generators were tested only on small inputs through the local checker. Their correctness and performance on large graphs were not independently evaluated.
 
