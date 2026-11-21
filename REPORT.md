@@ -12,7 +12,7 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 | Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
 | Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
 
-### Contributions
+### 1.1 Contributions
 
 **Mamatha Dharavath — Adversary**
 
