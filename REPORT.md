@@ -20,6 +20,14 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 - Prepared the D5 derivation explaining why undirected DFS has no cross edges, including the role of the root rule (PR #17).
 - Contributed to `TOOLS.md` (PR #41).
 
+## 2. Problem
+
+The project analyzes an undirected network to identify its critical vertices (articulation points), critical links (bridges), and biconnected components. It also answers queries about whether removing one vertex would disconnect two other vertices.
+
+The application provides two independent approaches for finding critical structures. Structure A uses an iterative Tarjan low-link DFS, while Structure B uses a DFS tree and union-find path marking to find bridges. A brute-force oracle checks the results on smaller graphs, and the application uses a block-cut forest to answer vertex-failure queries.
+
+The project targets graphs with up to 100,000 vertices and 1,000,000 edges. The README reports testing at 100,000 vertices and 2,450,000 edges; the oracle is limited to graphs with up to 5,000 vertices and 25,000 edges.
+
 ### 3. Architect Module (D3) — Block-Cut Forest & Resilience Application
 **Owner:** Deepali Chauhan (`250041014` / `DeepaliChauhan07`)  
 **Derivation:** `docs/derivations/D3_250041014.pdf`
@@ -266,7 +274,13 @@ https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/7
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/14
 https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
+## 6. The Requirement Beyond the Lecture
 
+### Dharavath Mamatha — Adversary
+
+The reading explains that in an undirected graph, every non-tree edge in a DFS connects a vertex to one of its ancestors. This property is used in DFS-based graph algorithms, including finding biconnected components.
+
+I used Claude to help me understand the derivation and the role of the root rule. My D5 derivation explains why an undirected DFS has no cross edges and why the root needs a separate articulation-point rule. My implementation differs from the paper’s algorithmic work: instead of implementing the full algorithm, I created seven graph generators—path, cycle, star, cliques, disconnected, empty, and random graphs—to test the project’s algorithms on different graph structures and edge cases.
 
 ## Oracle module(D4)
 ## 7. Correctness
