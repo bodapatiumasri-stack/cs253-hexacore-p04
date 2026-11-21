@@ -32,7 +32,14 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 - Designed the system-wide architectural contract (`INTERFACE.md`) and shared 1-based undirected multigraph representation (`graph.hpp`) with unique 0-based edge IDs across all modules (D1–D4).
 - Implemented the Block-Cut Forest construction (`app/block_cut.h`, `app/block_cut.cpp`) with iterative binary lifting LCA preprocessing for $\mathcal{O}(\log n)$ single-vertex failure connectivity queries, as well as the critical node impact ranking engine (`app/ranking.h`, `app/ranking.cpp`) and end-to-end CLI application (`app/main.cpp`).
 - Prepared the D3 derivation (`docs/derivations/D3_250041014.pdf`) proving that the bipartite block-cut incidence graph is acyclic (a forest) and that vertex-failure separation reduces to tree-path distance checks.
+  
+**Keetha Akshaya — Oracle owner**
 
+- Implemented the brute-force oracle in `oracle/oracle.hpp` and `oracle/oracle.cpp` (`countComponents`, `runOracle`, `oracleArticulationPoints`, `oracleBridges`, `oracleTooLarge`, `compareResults`, `runOracleReport`). It removes each vertex or edge, counts the components again with BFS and compares with the original count.
+- Wrote `oracle/oracle_test.cpp` (16 test groups with hand-computed answers), `oracle/oracle_integration_test.cpp` (Structure A, Structure B and the oracle on 8 named graphs, 500 random graphs and a path of 200,000 vertices) and `oracle/invariants_check.cpp`.
+- Prepared the D4 derivation (`docs/derivations/D4_250041021.pdf`): the oracle's component-count test matches the low-link bridge criterion used by Structure A, and a bridge is a biconnected component by itself.
+- Main pull requests: #4, #35, #61.
+  
 **Dharavath Mamatha — Adversary**
 
 - Implemented seven graph generators in the `adversary/` directory to create adversarial and edge-case inputs (PR #1, #3).
@@ -312,6 +319,12 @@ The lecture finds bridges with Tarjan's low-link values, which Structure A alrea
 
 In **Derivation D2** (`docs/derivations/D2_250041009.pdf`) and `src/structB/structB.cpp`, I addressed these gaps. I proved that every non-tree edge joins a vertex with one of its ancestors, that a tree edge is on a cycle exactly when a non-tree edge covers it, and that the marking loop marks exactly the tree path of each non-tree edge. So the unmarked tree edges are exactly the bridges. In the code, the DFS is iterative with an explicit stack and skips only the parent edge by its ID, so parallel edges, self-loops and disconnected graphs are handled. The union-find uses union by rank and path compression, and a separate `top[]` array stores the highest vertex of each set, because the representative is not always the highest vertex. The path marking costs $O((V+E)\,\alpha(V))$, and the sorting of the output adds $O(V \log V)$. The two-edge-connected components come from a BFS that never crosses a bridge.
 
+**Keetha Akshaya — Oracle**
+
+The lecture covers BFS and connected components. What goes beyond it is showing that a simple brute-force test can serve as ground truth for the low-link method. In Derivation D4 (`docs/derivations/D4_250041021.pdf`) I prove that a tree edge $(u, v)$ is a bridge exactly when $\text{low}[v] > \text{disc}[u]$, the criterion Structure A uses. I also prove that a bridge is a biconnected component by itself, so the bridges the oracle finds are exactly the single-edge blocks of Structure A's decomposition and of the block-cut forest.
+
+The oracle itself (`countComponents` and `runOracle` in `oracle/oracle.cpp`) uses none of these techniques. It removes one vertex or edge, runs BFS and compares component counts, so it stays independent of Structures A and B. A removed edge is skipped by its id and not by its endpoints, so parallel edges stay separate.
+
 ### Dharavath Mamatha — Adversary
 
 The reading explains that in an undirected graph, every non-tree edge in a DFS connects a vertex to one of its ancestors. This property is used in DFS-based graph algorithms, including finding biconnected components.
@@ -562,6 +575,10 @@ Correctness was checked with `integration_test` (Structure B against Structure A
 
 The Architect module (`app/block_cut.cpp`, `app/ranking.cpp`, `app/main.cpp`) was compiled from the repository root using `g++ -O2 -std=c++17 -I.` linked against `src/structA/structA.cpp`. Functional correctness of Block-Cut Forest construction, binary lifting LCA distances, `isDisconnectedAfterFailure` queries, and `rankCriticalNodes` ordering was verified across connected graphs, multi-component graphs with isolated vertices, and deep path topologies up to $V = 100{,}000$ without recursion stack overflow.
 
+**Oracle (`oracle/`)**
+
+The oracle tests were compiled and run on a laptop with Windows 11 version 26H2 (OS Build 26300.9818), x86_64, a 13th Gen Intel(R) Core(TM) i5-1334U processor and 16 GB RAM, using g++ 16.2.0 (MinGW-W64 x86_64-ucrt-posix-seh) with `g++ -std=c++17 -Wall -Wextra -I.` (`oracle/invariants_check.cpp` with `-O2 -std=c++14`, as in Section 7.3). Input sizes were up to 5,000 vertices and 25,000 edges (the `oracleTooLarge` limit), plus a path of 200,000 vertices on Structures A and B only. The random graphs use seed 12345. The oracle timings in Section 9 come from the Analyst's machine (Section 9.2), not from this one.
+
 ### Adversary
 
 The adversary generators were compiled on a laptop running Windows 11 Home Single Language, version 25H2 (OS Build 26200.9974), using MinGW GCC 6.3.0 with g++ -O2 and the compiler’s default C++ standard. The laptop has 2 CPU cores and 4 logical processors, with 160 KB L1 cache, 1.0 MB L2 cache, and 4.0 MB L3 cache. The CPU model was not recorded.
@@ -579,7 +596,13 @@ Refer Section 9.4
 
 - `buildBlockCutForest` deduplicates vertices per biconnected block using `std::sort` and allocates an $\mathcal{O}(N \log N)$ binary lifting table `up[LOG][N]` ($N \le 2n$), which uses slightly more memory and $\mathcal{O}((n + m)\log n)$ preprocessing time compared to Euler-tour RMQ or linear-time tarjan offline LCA.
 - Current failure queries (`isDisconnectedAfterFailure`) and impact rankings (`rankCriticalNodes`) model single-vertex removals only; multi-vertex simultaneous failures or edge-specific failure queries (via bridge-cut trees) are not yet supported in `app/main.cpp`.
-
+  
+- The oracle runs only up to 5,000 vertices and 25,000 edges (the 25,000 is a team choice). Its cost is quadratic, so larger graphs are checked only by comparing Structure A with Structure B.
+- The oracle reads the same `Graph` from `graph.hpp` as the structures, so a bug in building the adjacency list would affect all of them equally.
+- `compareResults` removes duplicates before comparing, so a structure that reports the same item twice still shows MATCH.
+- The differential test uses 500 random graphs and 8 named graphs, not $10^5$ or $10^6$ operations, and it does not shrink failing cases.
+- `oracle/invariants_check.cpp` accepts only simple graphs and had not yet been run on the final code. The oracle's running time comes from the Analyst's benchmark (Section 9), and I did not time it separately.
+  
 - The adversary generators were tested only on small inputs through the local checker. Their correctness and performance on large graphs were not independently evaluated.
 
 ## 13. References
