@@ -1,7 +1,7 @@
 # Project 04: Critical nodes and links in a network
 Team hexacore — CS 253 / MA 253, [Autumn 2026]
 
-## Team and roles
+## 1. Team and roles
 
 | Name | Roll no. | GitHub | Role | Module folder | Derivation |
 |------|----------|--------|------|---------------|------------|
