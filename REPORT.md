@@ -510,7 +510,16 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
   1. `docs/plots/oracle_vs_structures_log.png` — Log-scale runtime comparison validating Oracle quadratic divergence against linear Structures A and B ($V = 1,000$ to $5,000$).
   2. `docs/plots/scalability_comparison.png` — Mean execution time scaling across all 7 topologies from $V = 1,000$ to $V = 100,000$.
   3. `docs/plots/topology_100k_comparison.png` — Grouped bar comparison across all 7 adversarial topologies at $V \approx 100,000$.
-## References
+ 
+### 10. Experimental setup
+
+### Adversary
+
+The adversary generators were compiled on a laptop running Windows 11 Home Single Language, version 25H2 (OS Build 26200.9974), using MinGW GCC 6.3.0 with g++ -O2 and the compiler’s default C++ standard. The laptop has 2 CPU cores and 4 logical processors, with 160 KB L1 cache, 1.0 MB L2 cache, and 4.0 MB L3 cache. The CPU model was not recorded.
+
+Correctness testing used eight small inputs: path 5, path 10, cycle 10, star 10, empty 5, disconnected 10, cliques 3 4, and random 50 80 1. The random graph used seed 1. These tests were run through the local checker; no timing measurements or repeated trials were recorded.
+
+## 13. References
 
 **Papers and books**
 
