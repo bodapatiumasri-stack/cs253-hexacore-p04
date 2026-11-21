@@ -12,6 +12,14 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 | Dharavath Mamatha | 250041015 | @mamathadharavath35-a11y | Adversary | adversary/ | D5 |
 | Kunreddy Sahasra Reddy | 250041023 | @sahasrakunreddy | Analyst | benchmark/, docs/ | D6 |
 
+### Contributions
+
+**Mamatha Dharavath — Adversary**
+
+- Implemented seven graph generators in the `adversary/` directory to create adversarial and edge-case inputs (PR #1, #3).
+- Prepared the D5 derivation explaining why undirected DFS has no cross edges, including the role of the root rule (PR #17).
+- Contributed to `TOOLS.md` (PR #41).
+
 ### 3. Architect Module (D3) — Block-Cut Forest & Resilience Application
 **Owner:** Deepali Chauhan (`250041014` / `DeepaliChauhan07`)  
 **Derivation:** `docs/derivations/D3_250041014.pdf`
