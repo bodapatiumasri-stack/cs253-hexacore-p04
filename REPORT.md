@@ -14,6 +14,12 @@ Team hexacore — CS 253 / MA 253, [Autumn 2026]
 
 ### 1.1 Contributions
 
+**Rishika Goyal — Structure A**
+
+- Implemented the single-pass iterative Tarjan low-link DFS engine (`src/structA/structA.hpp`, `src/structA/structA.cpp`) to compute articulation points, bridges, and biconnected components in $\mathcal{O}(V + E)$ time with multigraph edge-ID tracking and self-loop handling.
+- Prepared the D1 derivation (`docs/derivations/D1_250008029.pdf`) proving the bridge and articulation-point low-link criteria, biconnected edge-stack extraction, and linear time/space complexity.
+- Verified Structure A across edge cases, randomized differential tests against Structure B and the Oracle, and full-scale ($V = 100{,}000$) adversarial topologies, and finalized repository documentation (`README.md`, `REPORT.md`).
+
 **Dharavath Mamatha — Adversary**
 
 - Implemented seven graph generators in the `adversary/` directory to create adversarial and edge-case inputs (PR #1, #3).
@@ -276,6 +282,12 @@ https://github.com/bodapatiumasri-stack/cs253-hexacore-p04/pull/38
 
 ## 6. The Requirement Beyond the Lecture
 
+### Rishika Goyal — Structure A
+
+Tarjan's classic low-link formulation in the lecture notes relies on recursive Depth-First Search and assumes simple undirected graphs where skipping the parent vertex $p$ suffices to avoid reversing along a tree edge. When extending this to adversarial inputs up to $V = 100{,}000$ vertices and undirected multigraphs, recursive DFS overflows the operating system's call stack on deep path graphs, and skipping by parent vertex $p$ misclassifies parallel edges as bridges.
+
+In **Derivation D1** (`docs/derivations/D1_250008029.pdf`) and `src/structA/structA.cpp`, I addressed both gaps by replacing call-stack recursion with an explicit heap-allocated `DFSFrame` state machine (`std::vector<DFSFrame>`) and tracking incoming 0-based `parent_edge_id`s rather than parent vertices. This preserves strict $\mathcal{O}(V + E)$ traversal complexity while handling parallel edges, self-loops, disconnected components, and deep $100{,}000$-vertex chains without stack overflow.
+
 ### Dharavath Mamatha — Adversary
 
 The reading explains that in an undirected graph, every non-tree edge in a DFS connects a vertex to one of its ancestors. This property is used in DFS-based graph algorithms, including finding biconnected components.
@@ -513,6 +525,10 @@ Before running empirical benchmarks, asymptotic time and space bounds were estab
  
 ### 10. Experimental setup
 
+### Structure A
+
+Structure A (`src/structA/structA.cpp`) was compiled and verified locally on Windows 11 using `g++ -O2 -std=c++17 -I.` alongside Structure B, the Oracle (`oracle/oracle_integration_test.cpp`), structural invariant checks (`oracle/invariants_check.cpp`), and the adversarial generators (`adversary/*.cpp`). Correctness was verified across 10 handcrafted edge-case graphs (including parallel edges, self-loops, isolated vertices, stars, cycles, and paths) and 500 seeded random graphs (`seed = 12345`), while stack safety and linear scaling were tested up to $V = 100{,}000$ vertices across all seven adversarial topologies.### Structure A
+
 ### Adversary
 
 The adversary generators were compiled on a laptop running Windows 11 Home Single Language, version 25H2 (OS Build 26200.9974), using MinGW GCC 6.3.0 with g++ -O2 and the compiler’s default C++ standard. The laptop has 2 CPU cores and 4 logical processors, with 160 KB L1 cache, 1.0 MB L2 cache, and 4.0 MB L3 cache. The CPU model was not recorded.
@@ -520,6 +536,9 @@ The adversary generators were compiled on a laptop running Windows 11 Home Singl
 Correctness testing used eight small inputs: path 5, path 10, cycle 10, star 10, empty 5, disconnected 10, cliques 3 4, and random 50 80 1. The random graph used seed 1. These tests were run through the local checker; no timing measurements or repeated trials were recorded.
 
 ### 12. Limitations
+
+- Structure A sorts `articulationPoints`, `bridges`, and edge IDs within each biconnected component to guarantee canonical output ordering for differential testing, adding an $\mathcal{O}(V \log V + E \log E)$ post-processing step on top of the $\mathcal{O}(V + E)$ DFS traversal.
+- While Structure A supports multigraph parallel edges and self-loops via unique 0-based `edge_id` tracking, downstream invariant checks (`invariants_check.cpp`) and adversarial generators are restricted to simple graphs (`I0`), so multigraph behavior was validated primarily via targeted unit tests in `oracle_integration_test.cpp`.
 
 - The adversary generators were tested only on small inputs through the local checker. Their correctness and performance on large graphs were not independently evaluated.
 
