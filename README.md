@@ -105,8 +105,6 @@ Full analysis: REPORT.md, sections 7 and 9.
 - The oracle runs only up to 5,000 vertices and 25,000 edges (the 25,000 is a team choice); larger graphs are checked by comparing Structure A with Structure B.
 - The differential test uses 500 random graphs and 8 named graphs, not 10^6 seeded operations, and it does not shrink failing cases.
 - The adversarial run through A, B and the oracle used small inputs.
-- [State the hidden-test interface status and any folder names that differ from the required layout.]
-
 See REPORT.md, section 12, for the full list.
 
 ## Tools and references
