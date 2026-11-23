@@ -86,7 +86,6 @@ This builds everything, runs the tests and the application, creates the 35 bench
 - docs/: derivations (docs/derivations/), plots, slides, cost model
 - oracle/: brute-force oracle, differential test, invariant checkers
 - results/: benchmark results (results.csv)
-- scripts/: run_all.sh (build, tests, application, benchmarks, figures) and gen_datasets.sh
 - src/: Structure A (structA/) and Structure B (structB/)
 - graph.hpp, INTERFACE.md, REPORT.md, TOOLS.md
 
