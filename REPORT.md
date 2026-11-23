@@ -319,7 +319,7 @@ The lecture finds bridges with Tarjan's low-link values, which Structure A alrea
 
 In **Derivation D2** (`docs/derivations/D2_250041009.pdf`) and `src/structB/structB.cpp`, I addressed these gaps. I proved that every non-tree edge joins a vertex with one of its ancestors, that a tree edge is on a cycle exactly when a non-tree edge covers it, and that the marking loop marks exactly the tree path of each non-tree edge. So the unmarked tree edges are exactly the bridges. In the code, the DFS is iterative with an explicit stack and skips only the parent edge by its ID, so parallel edges, self-loops and disconnected graphs are handled. The union-find uses union by rank and path compression, and a separate `top[]` array stores the highest vertex of each set, because the representative is not always the highest vertex. The path marking costs $O((V+E)\,\alpha(V))$, and the sorting of the output adds $O(V \log V)$. The two-edge-connected components come from a BFS that never crosses a bridge.
 
-###Keetha Akshaya — Oracle
+### Keetha Akshaya — Oracle
 
 The lecture covers BFS and connected components. What goes beyond it is showing that a simple brute-force test can serve as ground truth for the low-link method. In Derivation D4 (`docs/derivations/D4_250041021.pdf`) I prove that a tree edge $(u, v)$ is a bridge exactly when $\text{low}[v] > \text{disc}[u]$, the criterion Structure A uses. I also prove that a bridge is a biconnected component by itself, so the bridges the oracle finds are exactly the single-edge blocks of Structure A's decomposition and of the block-cut forest.
 
