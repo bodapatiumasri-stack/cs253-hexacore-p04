@@ -319,7 +319,7 @@ The lecture finds bridges with Tarjan's low-link values, which Structure A alrea
 
 In **Derivation D2** (`docs/derivations/D2_250041009.pdf`) and `src/structB/structB.cpp`, I addressed these gaps. I proved that every non-tree edge joins a vertex with one of its ancestors, that a tree edge is on a cycle exactly when a non-tree edge covers it, and that the marking loop marks exactly the tree path of each non-tree edge. So the unmarked tree edges are exactly the bridges. In the code, the DFS is iterative with an explicit stack and skips only the parent edge by its ID, so parallel edges, self-loops and disconnected graphs are handled. The union-find uses union by rank and path compression, and a separate `top[]` array stores the highest vertex of each set, because the representative is not always the highest vertex. The path marking costs $O((V+E)\,\alpha(V))$, and the sorting of the output adds $O(V \log V)$. The two-edge-connected components come from a BFS that never crosses a bridge.
 
-**Keetha Akshaya — Oracle**
+###Keetha Akshaya — Oracle
 
 The lecture covers BFS and connected components. What goes beyond it is showing that a simple brute-force test can serve as ground truth for the low-link method. In Derivation D4 (`docs/derivations/D4_250041021.pdf`) I prove that a tree edge $(u, v)$ is a bridge exactly when $\text{low}[v] > \text{disc}[u]$, the criterion Structure A uses. I also prove that a bridge is a biconnected component by itself, so the bridges the oracle finds are exactly the single-edge blocks of Structure A's decomposition and of the block-cut forest.
 
@@ -406,13 +406,11 @@ The checker prints one line per invariant group and a last line `ALL INVARIANTS 
 | 3 | 2026-11-16 | oracle/oracle_test.cpp | `fatal error: graph.hpp: No such file or directory`. The test included `graph.hpp` as if it were in the same folder, but it is in the repo root. | Compiler error when building the oracle test | `3b111f1` |
 | 4 | 2026-11-16 | oracle/oracle_integration_test.cpp | `'struct Graph' has no member named 'assign'` and `no match for operator[]`. The old test treated `Graph` as a vector and called functions that no longer exist. | Compiler error when running the integration test against Structure A and B | `c3513e7` |
 | 5 | 2026-11-16 | oracle/ (git history) | Merge commit `8490188` deleted `oracle_integration_test.cpp` by mistake. A `git rm` was still staged when `git add oracle` ran. | `git show --stat HEAD` showed "1 file changed, 135 deletions" | `527e4a5` (revert) |
-| Date | Module | Symptom | How found | Fix |
-|---|---|---|---|---|
-| 15 Nov | `graph.hpp` | `main` did not build: `graph.hpp` was not in `main` yet, and Structure A included `../common/graph.hpp`, which did not exist | compiling Structure A, Structure B and the oracle together | `graph.hpp` added by the Architect (commit `5c8b146`, latest update `9113694`) |
-| 15 Nov | Structure A | Used the old type name `GraphData` and a different include path from the final `Graph` header | the same build attempt | PR #25 (`structA.hpp`) and PR #26 (`structA.cpp`) |
-| 15 Nov | Structure B | Included `graph.hpp` from a different path than Structure A, and `computeStructureB` had a different signature | the same build attempt | commits `4e91d3f` and `f89e9a9` (include path), PR #28 (inline overload) |
-| 15 Nov | Oracle | `oracle.hpp` defined its own `Graph` alias, which clashes with the shared `struct Graph` | reading `oracle.hpp` while building | fixed by the Oracle owner (PR #31) |
-| 16 Nov | `adversary/path.cpp` | No check for a missing command-line argument, unlike the other six generators | reading the source code | not fixed; see Limitations (section 8.4) |
+| 6 | 2026-11-15 | `graph.hpp` | `main` did not build: `graph.hpp` was not in `main` yet, and Structure A included `../common/graph.hpp`, which did not exist | compiling Structure A, Structure B and the oracle together | `graph.hpp` added by the Architect (commit `5c8b146`, latest update `9113694`) |
+| 7 | 2026-11-15 | Structure A | Used the old type name `GraphData` and a different include path from the final `Graph` header | the same build attempt | PR #25 (`structA.hpp`) and PR #26 (`structA.cpp`) |
+| 8 | 2026-11-15 | Structure B | Included `graph.hpp` from a different path than Structure A, and `computeStructureB` had a different signature | the same build attempt | commits `4e91d3f` and `f89e9a9` (include path), PR #28 (inline overload) |
+| 9 | 2026-11-15 | Oracle | `oracle.hpp` defined its own `Graph` alias, which clashes with the shared `struct Graph` | reading `oracle.hpp` while building | fixed by the Oracle owner (PR #31) |
+| 10 | 2026-11-16 | `adversary/path.cpp` | No check for a missing command-line argument, unlike the other six generators | reading the source code | not fixed; see Limitations (section 8.4) |
 
 The oracle found no wrong-answer bug in Structure A or Structure B. They agreed with it on every graph tested, so the entries above are build and integration bugs.
 
